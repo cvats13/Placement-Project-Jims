@@ -1,6 +1,7 @@
 const AddStudent = () => {
-  return (
-    <div className="bg-white p-8 rounded shadow max-w-3xl">
+  
+    return (
+  <div className="page-transition min-h-screen flex items-center justify-center">
       <h2 className="text-2xl font-bold mb-6">Add Student</h2>
 
       <form className="grid grid-cols-2 gap-4">

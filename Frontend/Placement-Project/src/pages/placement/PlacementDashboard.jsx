@@ -1,6 +1,6 @@
 const PlacementDashboard = () => {
-  return (
-    <div>
+ return (
+  <div className="page-transition min-h-screen flex items-center justify-center">
       <h1 className="text-3xl font-bold mb-6">Placement Cell Dashboard</h1>
 
       <div className="grid grid-cols-3 gap-6">

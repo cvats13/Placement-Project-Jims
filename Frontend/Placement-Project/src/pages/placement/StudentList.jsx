@@ -1,6 +1,6 @@
 const StudentList = () => {
   return (
-    <div>
+  <div className="page-transition min-h-screen flex items-center justify-center">
       <h1 className="text-2xl font-bold mb-4">All Students</h1>
 
       <div className="bg-white p-6 rounded shadow">

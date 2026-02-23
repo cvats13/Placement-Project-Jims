@@ -16,8 +16,8 @@ const ShortlistedStudents = () => {
     },
   ];
 
-  return (
-    <div>
+ return (
+  <div className="page-transition min-h-screen flex items-center justify-center">
       <h1 className="text-3xl font-bold mb-6">Shortlisted Students</h1>
 
       <div className="bg-white p-6 rounded shadow">

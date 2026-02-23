@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import collegeImg from "./assets/collegeImg.jpg";
 import RoleSelection from "./pages/RoleSelection";
 import AdminLayout from "./layouts/AdminLayout";
 import PlacementLayout from "./layouts/PlacementLayout";
