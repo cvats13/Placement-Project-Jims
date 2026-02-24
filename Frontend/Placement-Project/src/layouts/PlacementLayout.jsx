@@ -17,7 +17,8 @@ const PlacementLayout = () => {
           <Routes>
             <Route path="dashboard" element={<PlacementDashboard />} />
             <Route path="companies" element={<CompanyManagement />} />
-            <Route path="students" element={<StudentList />} />
+            <Route path="list" element={<StudentList />} />
+            <Route path="students/:id" element={<StudentList />} />
             <Route path="shortlisted" element={<ShortlistedStudents />} />
           </Routes>
         </div>
