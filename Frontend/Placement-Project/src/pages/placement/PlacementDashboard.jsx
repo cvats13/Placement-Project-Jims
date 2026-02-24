@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Navbar from "../../Components/Navbar";
+
 import studentsData from "../../data/students";
 
 
@@ -44,7 +44,6 @@ export default function PlacementDashboard() {
 
   return (
     <>
-      <Navbar />
 
       <div className="p-6">
         <h1 className="text-3xl font-bold mb-6">Home Page</h1>
