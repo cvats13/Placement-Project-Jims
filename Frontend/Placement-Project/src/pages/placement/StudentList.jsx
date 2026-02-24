@@ -18,7 +18,7 @@ export default function StudentList() {
     return (
       <div className="p-6">
         <button
-          onClick={() => navigate("/placement/students")}
+          onClick={() => navigate("/placement/dashboard")}
           className="mb-4 px-4 py-2 bg-slate-800 text-white rounded-md"
         >
           ← Back
@@ -147,33 +147,33 @@ export default function StudentList() {
   }
 
   // If NO ID → show list
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        Student List
-      </h1>
+  // return (
+  //   <div className="p-6">
+  //     <h1 className="text-2xl font-bold mb-6">
+  //       Student List
+  //     </h1>
 
-      <div className="grid gap-4">
-        {studentsData.map((student) => (
-          <div
-            key={student.id}
-            className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center"
-          >
-            <h2 className="font-semibold">
-              {student.name}
-            </h2>
+  //     <div className="grid gap-4">
+  //       {studentsData.map((student) => (
+  //         <div
+  //           key={student.id}
+  //           className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center"
+  //         >
+  //           <h2 className="font-semibold">
+  //             {student.name}
+  //           </h2>
 
-            <button
-              onClick={() =>
-                navigate(<a href={`/placement/students/${student.id}`}></a>) 
-              }
-              className="px-4 py-2 bg-slate-800 text-white rounded-md"
-            >
-              View
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  //           <button
+  //             onClick={() =>
+  //               navigate(<a href={`/placement/students/${student.id}`}></a>) 
+  //             }
+  //             className="px-4 py-2 bg-slate-800 text-white rounded-md"
+  //           >
+  //             View
+  //           </button>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   </div>
+  // );
 }

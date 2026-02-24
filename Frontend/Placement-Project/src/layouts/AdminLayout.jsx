@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import Sidebar from "../Components/Sidebar";
 import Navbar from "../Components/Navbar";
 
 import AdminDashboard from "../pages/admin/Dashboard";
@@ -10,7 +9,6 @@ import EligibleStudents from "../pages/admin/EligibleStudents";
 const AdminLayout = () => {
   return (
     <div className="flex">
-      <Sidebar role="admin" />
       <div className="flex-1 bg-gray-100 min-h-screen">
         <Navbar />
         <div className="p-6">
