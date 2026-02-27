@@ -5,7 +5,6 @@ export default function StudentList() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // If ID exists → show details
   if (id) {
     const student = studentsData.find(
       (s) => s.id === Number(id)
@@ -25,22 +24,94 @@ export default function StudentList() {
         </button>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-start border-b pb-4">
-            <h1 className="text-2xl font-bold">
+
+          {/* ================= PERSONAL DETAILS ================= */}
+          <div className="border-b pb-6">
+            <h1 className="text-2xl font-bold mb-4">
               {student.name}
             </h1>
 
-            <div className="text-right">
-              <p className="text-blue-600 font-medium">
-                GitHub: {student.github}
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+
+              <p><strong>Enrollment No:</strong> {student.enrollment}</p>
+              <p><strong>Email:</strong> {student.email}</p>
+              <p><strong>Contact:</strong> {student.contact}</p>
+              <p><strong>Course:</strong> {student.course}</p>
+              <p><strong>Course CGPA:</strong> {student.courseCgpa}</p>
+
+              <p><strong>10th Marks:</strong> {student.tenthMarks}%</p>
+              <p><strong>12th Marks:</strong> {student.twelfthMarks}%</p>
+              <p><strong>UG Score:</strong> {student.ugScore}</p>
+
+              <p>
+                <strong>Resume:</strong>{" "}
+                <a
+                  href={student.resume}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  View Resume
+                </a>
               </p>
-              <p className="text-yellow-600 font-medium">
-                LeetCode: {student.leetcode}
+
+              <p>
+                <strong>LinkedIn:</strong>{" "}
+                <a
+                  href={student.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  Profile
+                </a>
               </p>
+
+              <p>
+                <strong>GitHub:</strong>{" "}
+                <a
+                  href={student.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {student.github}
+                </a>
+              </p>
+
+              <p>
+                <strong>LeetCode:</strong>{" "}
+                <a
+                  href={student.leetcode}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {student.leetcode}
+                </a>
+              </p>
+            </div>
+
+            {/* Certifications */}
+            <div className="mt-4">
+              <h2 className="font-semibold mb-2">
+                Certifications
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {student.certifications?.map((cert, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-slate-200 rounded-md text-sm"
+                  >
+                    {cert}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Semester Marks */}
+
+          {/* ================= SEMESTER MARKS ================= */}
           <div className="mt-6">
             <h2 className="font-semibold mb-2">
               Semester Marks
@@ -63,7 +134,8 @@ export default function StudentList() {
             </div>
           </div>
 
-          {/* Mock Tests */}
+
+          {/* ================= MOCK TESTS ================= */}
           <div className="mt-6">
             <h2 className="font-semibold mb-2">
               Mock Test Marks
@@ -81,7 +153,8 @@ export default function StudentList() {
             </div>
           </div>
 
-          {/* CIE */}
+
+          {/* ================= CIE ================= */}
           <div className="mt-6">
             <h2 className="font-semibold mb-2">
               CIE Marks
@@ -104,7 +177,8 @@ export default function StudentList() {
             </div>
           </div>
 
-          {/* Placement */}
+
+          {/* ================= PLACEMENT ================= */}
           <div className="mt-6">
             <h2 className="font-semibold mb-3 text-lg">
               Placement Status
@@ -141,10 +215,12 @@ export default function StudentList() {
               </p>
             )}
           </div>
+
         </div>
       </div>
     );
   }
+}
 
   // If NO ID → show list
   // return (
@@ -176,4 +252,3 @@ export default function StudentList() {
   //     </div>
   //   </div>
   // );
-}
