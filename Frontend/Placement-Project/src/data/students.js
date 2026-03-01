@@ -112,35 +112,7 @@ const students = [
     placements: [
       { company: "Google", rounds: [false, false, false, false, false] }
     ]
-  },
-  {
-  id: 12,
-  name: "Chhavi Sharma",
-  enrollment: "MCA007",
-  email: "chhavi.sharma@gmail.com",
-  contact: "9898989898",
-  course: "MCA",
-  courseCgpa: 8.9,
-  tenthMarks: 90,
-  twelfthMarks: 92,
-  ugScore: 8.6,
-  resume: "https://example.com/resume12.pdf",
-  linkedin: "https://linkedin.com/in/chhavisharma",
-  github: "https://github.com/chhavisharma",
-  leetcode: "https://leetcode.com/chhavi_codes",
-  certifications: [
-    "Full Stack Development",
-    "Data Structures & Algorithms",
-    "Machine Learning Basics"
-  ],
-  semMarks: [8.3, 8.5, 8.7, 8.8, 9.0, 9.1],
-  cie: [88, 90, 91, 89],
-  mockTests: [80, 82, 85, 87, 90],
-  placements: [
-    { company: "Adobe", rounds: [true, true, true, false] },
-    { company: "Flipkart", rounds: [true, true, false] }
-  ]
-}
+  }
 ];
 
 export default students;
