@@ -112,7 +112,36 @@ const students = [
     placements: [
       { company: "Google", rounds: [false, false, false, false, false] }
     ]
-  }
+  },
+  {
+  id: 12,
+  name: "Chhavi Vats",
+  enrollment: "MCA007",
+  email: "chhavi.vats@gmail.com",
+  contact: "9876501234",
+  course: "MCA",
+  courseCgpa: 9.1,
+  tenthMarks: 94,
+  twelfthMarks: 91,
+  ugScore: 8.9,
+  resume: "https://example.com/resume12.pdf",
+  linkedin: "https://linkedin.com/in/chhavivats",
+  github: "https://github.com/chhavivats",
+  leetcode: "https://leetcode.com/chhavi_vats",
+  certifications: [
+    "Advanced Data Structures",
+    "MERN Stack Development",
+    "Cloud Computing (AWS)",
+    "Competitive Programming"
+  ],
+  semMarks: [8.5, 8.7, 8.9, 9.0, 9.2, 9.3],
+  cie: [90, 92, 94, 95],
+  mockTests: [85, 87, 88, 90, 92, 94],
+  placements: [
+    { company: "Amazon", rounds: [true, true, true, true, false] },
+    { company: "Adobe", rounds: [true, true, true, true] }
+  ]
+}
 ];
 
 export default students;
