@@ -3,7 +3,7 @@ import { Checkbox } from './ui/checkbox';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { FileText } from 'lucide-react';
-import { HighlightedText } from './HighlightedText';
+import { HighlightedText } from './ui/HighlightedText';
 
 export function StudentTable({ students, selectedStudents, onSelectStudent, onSelectAll, onViewProfile, searchTokens = [] }) {
   const allSelected = students.length > 0 && selectedStudents.length === students.length;

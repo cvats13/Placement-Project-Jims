@@ -1,18 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Toaster } from './components/ui/sonner';
-import { LoginPage } from './components/LoginPage';
+import { LoginPage } from './pages/LoginPage';
 import { Sidebar } from './components/Sidebar';
 import { EnhancedTopBar } from './components/EnhancedTopBar';
 import { StudentFilters } from './components/StudentFilters';
 import { StudentTable } from './components/StudentTable';
 import { SelectionActionBar } from './components/SelectionActionBar';
 import { EmailModal } from './components/EmailModal';
-import { StudentProfile } from './components/StudentProfile';
-import { AdminUploadPanel } from './components/AdminUploadPanel';
+import { StudentProfile } from './pages/StudentProfile';
+import { AdminUploadPanel } from './pages/AdminUploadPanel';
 import { BulkPasteModal } from './components/BulkPasteModal';
 import { BulkSearchIndicator } from './components/BulkSearchIndicator';
-import { FilterResultIndicator } from './components/FilterResultIndicator';
-import { EmptySearchState } from './components/EmptySearchState';
+import { FilterResultIndicator } from './components/ui/FilterResultIndicator';
+import { EmptySearchState } from './components/ui/EmptySearchState';
 
 // Mock student data
 const generateMockStudents = () => {
@@ -72,6 +72,42 @@ export default function App() {
     mockTestThreshold: 0,
     company: 'all',
   });
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch students from backend
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('http://localhost:3000/api/students');
+        if (!response.ok) throw new Error('Failed to fetch students');
+        const data = await response.json();
+        
+        // Ensure skills are parsed if they come as string, though MySQL JSON should be objects
+        const formattedData = data.map(s => ({
+          ...s,
+          skills: typeof s.skills === 'string' ? JSON.parse(s.skills) : (s.skills || [])
+        }));
+
+        setStudents(formattedData);
+        setFilteredStudents(formattedData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching students:', err);
+        setError(err.message);
+        // Fallback to mock data if backend fails for now
+        const mock = generateMockStudents();
+        setStudents(mock);
+        setFilteredStudents(mock);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
 
   const handleLogin = (role) => {
     setUserRole(role);

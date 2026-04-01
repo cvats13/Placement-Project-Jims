@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, User, FileText } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { SearchTokenChip } from './SearchTokenChip';
+import { SearchTokenChip } from './ui/SearchTokenChip';
 import { SearchSuggestionDropdown } from './SearchSuggestionDropdown';
 
 export function EnhancedTopBar({ 

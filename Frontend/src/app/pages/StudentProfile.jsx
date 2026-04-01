@@ -1,10 +1,11 @@
-import { ArrowLeft, Github, Code, Mail, Phone, FileText, ExternalLink, GraduationCap } from 'lucide-react';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { PlacementReadinessCard } from './PlacementReadinessCard';
-import { SemesterAccordion } from './SemesterAccordion';
-import { PerformanceCharts } from './PerformanceCharts';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Github, Code, Mail, Phone, FileText, ExternalLink, GraduationCap, Loader2 } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PlacementReadinessCard } from '../components/PlacementReadinessCard';
+import { SemesterAccordion } from '../components/SemesterAccordion';
+import { PerformanceCharts } from '../components/PerformanceCharts';
 
 // Generate comprehensive mock academic data
 const generateMockAcademicData = (student) => {
@@ -84,19 +85,79 @@ const generateMockAcademicData = (student) => {
 };
 
 export function StudentProfile({ student, onBack }) {
-  const academicData = generateMockAcademicData(student);
-  
-  const totalMockTests = academicData.reduce((sum, sem) => sum + sem.mockTests.length, 0);
-  const avgMockScore = academicData.reduce((sum, sem) => 
-    sum + sem.mockTests.reduce((s, t) => s + t.score, 0), 0
-  ) / totalMockTests;
+  const [academicData, setAcademicData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAcademicHistory = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`http://localhost:3000/api/students/${student.student_id}/academic-history`);
+        if (!response.ok) throw new Error('Failed to fetch academic history');
+        const data = await response.json();
+        
+        // Map backend response to the format expected by components
+        const formattedData = data.academicHistory.map(sem => ({
+          semesterNumber: sem.semester_number,
+          sgpa: parseFloat(sem.sgpa),
+          ciaMarks: sem.ciaMarks.map(cia => ({
+            ...cia,
+            average: parseFloat(cia.average)
+          })),
+          mockTests: sem.mockTests.map(test => ({
+            testName: test.test_name,
+            testType: test.test_type,
+            score: test.score,
+            percentile: test.percentile,
+            date: test.test_date
+          })),
+          // Calculate aggregates for this semester
+          avgCIA: sem.ciaMarks.length > 0 
+            ? sem.ciaMarks.reduce((sum, c) => sum + parseFloat(c.average), 0) / sem.ciaMarks.length 
+            : 0,
+          avgMockTest: sem.mockTests.length > 0
+            ? sem.mockTests.reduce((sum, t) => sum + t.score, 0) / sem.mockTests.length
+            : 0
+        }));
+
+        setAcademicData(formattedData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching academic history:', err);
+        setError(err.message);
+        // Fallback to mock if database is empty for this student
+        setAcademicData(generateMockAcademicData(student));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAcademicHistory();
+  }, [student.student_id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+        <p className="text-gray-500 animate-pulse">Loading academic profile...</p>
+      </div>
+    );
+  }
+
+  const totalMockTests = academicData.reduce((sum, sem) => sum + (sem.mockTests?.length || 0), 0);
+  const avgMockScore = totalMockTests > 0 
+    ? academicData.reduce((sum, sem) => 
+        sum + sem.mockTests.reduce((s, t) => s + (t.score || 0), 0), 0
+      ) / totalMockTests 
+    : 0;
   
   // Calculate placement readiness score (weighted formula)
   const placementReadiness = Math.min(100, Math.round(
-    student.cgpa * 10 + // 0-100 points
+    (student.cgpa || 0) * 10 + // 0-100 points
     (avgMockScore * 0.3) + // 0-30 points
     (student.backlogs === 0 ? 20 : 0) - // Bonus for no backlogs
-    (student.backlogs * 10) // Penalty for backlogs
+    ((student.backlogs || 0) * 10) // Penalty for backlogs
   ));
 
   return (

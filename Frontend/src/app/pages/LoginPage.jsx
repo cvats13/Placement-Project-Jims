@@ -1,19 +1,46 @@
 import { useState } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { toast } from 'sonner';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 
 export function LoginPage({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
 
-  const handleSubmit = (e) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email && password && role) {
-      onLogin(role);
+    if (!email || !password || !role) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch('http://localhost:3000/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      toast.success('Welcome back!');
+      onLogin(data.user.role);
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,8 +111,12 @@ export function LoginPage({ onLogin }) {
                 </Select>
               </div>
 
-              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700">
-                Login
+              <Button 
+                type="submit" 
+                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Signing in...' : 'Login'}
               </Button>
 
               <button

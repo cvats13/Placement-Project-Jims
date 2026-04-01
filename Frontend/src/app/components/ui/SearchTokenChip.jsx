@@ -1,5 +1,5 @@
 import { X, User } from 'lucide-react';
-import { Badge } from './ui/badge';
+import { Badge } from './badge';
 
 export function SearchTokenChip({ name, onRemove }) {
   return (
