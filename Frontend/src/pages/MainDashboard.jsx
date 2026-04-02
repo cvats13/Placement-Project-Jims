@@ -40,9 +40,14 @@ export function MainDashboard() {
 
   useEffect(() => {
     if (location.pathname === '/') {
-      navigate(`/${userRole === 'admin' || userRole === 'placement_officer' ? 'students' : 'login'}`, { replace: true });
+      const isValidRole = userRole === 'admin' || userRole === 'placement_officer';
+      if (!isValidRole) {
+        logout(); // Force logout to clear invalid session and gracefully break infinite redirects
+      } else {
+        navigate('/students', { replace: true });
+      }
     }
-  }, [location.pathname, navigate, userRole]);
+  }, [location.pathname, navigate, userRole, logout]);
 
   useEffect(() => {
     fetchStudents();

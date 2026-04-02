@@ -27,14 +27,13 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
                 )}
               </div>
             </TableHead>
-            <TableHead>Roll No</TableHead>
+            <TableHead>Enrollment No</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Branch</TableHead>
-            <TableHead>Semester</TableHead>
-            <TableHead>CGPA</TableHead>
-            <TableHead>Backlogs</TableHead>
+            <TableHead>Aggregate %</TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Skills</TableHead>
-            <TableHead>Resume</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -51,23 +50,27 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
                   onCheckedChange={() => onSelectStudent(student.student_id)}
                 />
               </TableCell>
-              <TableCell className="font-medium">{student.roll_no}</TableCell>
+              <TableCell className="font-medium">{student.enrollment_no}</TableCell>
               <TableCell>
                 <HighlightedText text={student.name} searchTokens={searchTokens} />
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{student.branch}</Badge>
+                <Badge variant="outline">{student.branch || 'N/A'}</Badge>
               </TableCell>
-              <TableCell>{student.semester}</TableCell>
               <TableCell>
-                <span className={student.cgpa >= 8 ? 'text-green-600 font-medium' : ''}>
-                  {student.cgpa.toFixed(2)}
+                <span className={student.aggregate_percentage >= 75 ? 'text-green-600 font-medium' : ''}>
+                  {student.aggregate_percentage ? `${student.aggregate_percentage}%` : 'N/A'}
                 </span>
               </TableCell>
               <TableCell>
-                <span className={student.backlogs === 0 ? 'text-green-600' : 'text-red-600'}>
-                  {student.backlogs}
+                <span className="text-gray-600 font-medium">
+                  {student.placed_company || '---'}
                 </span>
+              </TableCell>
+              <TableCell>
+                <Badge variant={student.placement_status === 'Placed' ? 'success' : 'secondary'}>
+                  {student.placement_status || 'In-Process'}
+                </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1 max-w-xs">
@@ -82,15 +85,6 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
                     </Badge>
                   )}
                 </div>
-              </TableCell>
-              <TableCell onClick={(e) => e.stopPropagation()}>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => window.open(student.resume_url, '_blank')}
-                >
-                  <FileText className="w-4 h-4" />
-                </Button>
               </TableCell>
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <Button 
