@@ -1,4 +1,5 @@
 import { LayoutDashboard, Users, Building2, CheckSquare, Mail, LogOut } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import { cn } from './ui/utils';
 
 export function Sidebar({ activeView, onNavigate, onLogout }) {
@@ -23,19 +24,19 @@ export function Sidebar({ activeView, onNavigate, onLogout }) {
           const isActive = activeView === item.id;
           
           return (
-            <button
+            <NavLink
               key={item.id}
-              onClick={() => onNavigate(item.id)}
-              className={cn(
+              to={`/${item.id}`}
+              className={({ isActive: navIsActive }) => cn(
                 "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                isActive
+                navIsActive || isActive
                   ? "bg-indigo-50 text-indigo-600"
                   : "text-gray-700 hover:bg-gray-50"
               )}
             >
               <Icon className="w-5 h-5" />
               {item.label}
-            </button>
+            </NavLink>
           );
         })}
       </nav>
