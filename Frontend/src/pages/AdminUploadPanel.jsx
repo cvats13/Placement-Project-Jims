@@ -5,17 +5,19 @@ import { Upload, FileText, CheckCircle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { toast } from 'sonner';
 
-export function AdminUploadPanel({ onDataUploaded }) {
+import useStudentStore from '../store/useStudentStore';
+
+export function AdminUploadPanel() {
   const [previewData, setPreviewData] = useState([]);
   const [isUploaded, setIsUploaded] = useState(false);
+  const { uploadStudents, isLoading } = useStudentStore();
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Mock CSV parsing - in real app, use a CSV parser library
-      // Generate mock preview data
+      // Mock CSV parsing logic for demonstration
       const mockData = Array.from({ length: 5 }, (_, i) => ({
-        student_id: i + 1,
+        student_id: Date.now() + i,
         roll_no: `2024BCA${(i + 1).toString().padStart(3, '0')}`,
         name: `Student ${i + 1}`,
         branch: ['BCA', 'MCA', 'BBA'][i % 3],
@@ -33,14 +35,18 @@ export function AdminUploadPanel({ onDataUploaded }) {
     }
   };
 
-  const handleConfirmUpload = () => {
-    onDataUploaded(previewData);
-    setIsUploaded(true);
-    toast.success(`${previewData.length} students uploaded successfully!`);
-    setTimeout(() => {
-      setPreviewData([]);
-      setIsUploaded(false);
-    }, 2000);
+  const handleConfirmUpload = async () => {
+    try {
+      await uploadStudents(previewData);
+      setIsUploaded(true);
+      toast.success(`${previewData.length} students uploaded successfully!`);
+      setTimeout(() => {
+        setPreviewData([]);
+        setIsUploaded(false);
+      }, 2000);
+    } catch (error) {
+      toast.error('Failed to upload data');
+    }
   };
 
   return (

@@ -2,13 +2,14 @@ import { LayoutDashboard, Users, Building2, CheckSquare, Mail, LogOut } from 'lu
 import { NavLink } from 'react-router-dom';
 import { cn } from './ui/utils';
 
-export function Sidebar({ activeView, onNavigate, onLogout }) {
+export function Sidebar({ activeView, onNavigate, onLogout, userRole }) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users },
     { id: 'companies', label: 'Companies', icon: Building2 },
     { id: 'shortlisted', label: 'Shortlisted', icon: CheckSquare },
     { id: 'email', label: 'Email Notifications', icon: Mail },
+    ...(userRole === 'admin' ? [{ id: 'admin', label: 'Bulk Upload', icon: LayoutDashboard }] : []),
   ];
 
   return (

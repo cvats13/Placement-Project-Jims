@@ -5,13 +5,13 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import useAuthStore from '../store/useAuthStore';
 
-export function LoginPage({ onLogin }) {
+export function LoginPage() {
+  const { login, isLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,26 +21,11 @@ export function LoginPage({ onLogin }) {
     }
 
     try {
-      setIsLoading(true);
-      const response = await fetch('http://localhost:3000/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
-
+      await login({ email, password, role });
       toast.success('Welcome back!');
-      onLogin(data.user.role);
     } catch (err) {
       console.error('Login error:', err);
       toast.error(err.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -4,6 +4,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { SearchTokenChip } from './ui/SearchTokenChip';
 import { SearchSuggestionDropdown } from './SearchSuggestionDropdown';
+import { useDebounce } from '../hooks/useDebounce';
 
 export function EnhancedTopBar({ 
   searchTokens, 
@@ -13,15 +14,16 @@ export function EnhancedTopBar({
   allStudents 
 }) {
   const [inputValue, setInputValue] = useState('');
+  const debouncedInput = useDebounce(inputValue, 300);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (inputValue.trim().length > 0) {
+    if (debouncedInput.trim().length > 0) {
       const filtered = allStudents.filter(student =>
-        student.name.toLowerCase().includes(inputValue.toLowerCase()) ||
-        student.roll_no.toLowerCase().includes(inputValue.toLowerCase())
+        student.name.toLowerCase().includes(debouncedInput.toLowerCase()) ||
+        student.roll_no.toLowerCase().includes(debouncedInput.toLowerCase())
       ).slice(0, 5);
       setSuggestions(filtered);
       setShowSuggestions(true);
@@ -29,7 +31,7 @@ export function EnhancedTopBar({
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [inputValue, allStudents]);
+  }, [debouncedInput, allStudents]);
 
   const handleInputChange = (e) => {
     const value = e.target.value;
