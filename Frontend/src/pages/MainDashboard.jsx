@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Toaster } from './components/ui/sonner';
-import { LoginPage } from './pages/LoginPage';
-import { Sidebar } from './components/Sidebar';
-import { EnhancedTopBar } from './components/EnhancedTopBar';
-import { StudentFilters } from './components/StudentFilters';
-import { StudentTable } from './components/StudentTable';
-import { SelectionActionBar } from './components/SelectionActionBar';
-import { EmailModal } from './components/EmailModal';
-import { StudentProfile } from './pages/StudentProfile';
-import { AdminUploadPanel } from './pages/AdminUploadPanel';
-import { BulkPasteModal } from './components/BulkPasteModal';
-import { BulkSearchIndicator } from './components/BulkSearchIndicator';
-import { FilterResultIndicator } from './components/ui/FilterResultIndicator';
-import { EmptySearchState } from './components/ui/EmptySearchState';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Toaster } from '../components/ui/sonner';
+import { Sidebar } from '../components/Sidebar';
+import { EnhancedTopBar } from '../components/EnhancedTopBar';
+import { StudentFilters } from '../components/StudentFilters';
+import { StudentTable } from '../components/StudentTable';
+import { SelectionActionBar } from '../components/SelectionActionBar';
+import { EmailModal } from '../components/EmailModal';
+import { StudentProfile } from '../pages/StudentProfile';
+import { AdminUploadPanel } from '../pages/AdminUploadPanel';
+import { BulkPasteModal } from '../components/BulkPasteModal';
+import { BulkSearchIndicator } from '../components/BulkSearchIndicator';
+import { FilterResultIndicator } from '../components/ui/FilterResultIndicator';
+import { EmptySearchState } from '../components/ui/EmptySearchState';
 
 // Mock student data
 const generateMockStudents = () => {
@@ -25,12 +25,12 @@ const generateMockStudents = () => {
   ];
   
   const skills = [
-    ['JavaScript', 'React', 'Node.jsx', 'MongoDB'],
+    ['JavaScript', 'React', 'Node.js', 'MongoDB'],
     ['Python', 'Django', 'PostgreSQL', 'AWS'],
     ['Java', 'Spring Boot', 'MySQL', 'Microservices'],
     ['C++', 'Data Structures', 'Algorithms', 'Problem Solving'],
-    ['HTML', 'CSS', 'TypeScript', 'Next.jsx'],
-    ['Angular', 'Vue.jsx', 'Express', 'GraphQL'],
+    ['HTML', 'CSS', 'TypeScript', 'Next.js'],
+    ['Angular', 'Vue.js', 'Express', 'GraphQL'],
     ['Flutter', 'Dart', 'Firebase', 'Mobile Dev'],
     ['React Native', 'Redux', 'REST API', 'Git'],
   ];
@@ -54,10 +54,22 @@ const generateMockStudents = () => {
   }));
 };
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState('');
-  const [activeView, setActiveView] = useState('students');
+export function MainDashboard({ userRole, onLogout }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const path = location.pathname.replace(/^\/+/, '');
+  const activeView = path || (userRole === 'admin' ? 'admin' : 'students');
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      navigate(`/${userRole === 'admin' ? 'admin' : 'students'}`, { replace: true });
+    }
+  }, [location.pathname, navigate, userRole]);
+
+  const handleNavigate = (view) => {
+    navigate(`/${view}`);
+  };
+
   const [students, setStudents] = useState(generateMockStudents());
   const [filteredStudents, setFilteredStudents] = useState(students);
   const [selectedStudents, setSelectedStudents] = useState([]);
@@ -85,10 +97,15 @@ export default function App() {
         if (!response.ok) throw new Error('Failed to fetch students');
         const data = await response.json();
         
+        if (!data || data.length === 0) {
+          throw new Error('No students found in database. Using dummy data instead.');
+        }
+        
         // Ensure skills are parsed if they come as string, though MySQL JSON should be objects
         const formattedData = data.map(s => ({
           ...s,
-          skills: typeof s.skills === 'string' ? JSON.parse(s.skills) : (s.skills || [])
+          skills: typeof s.skills === 'string' ? JSON.parse(s.skills) : (s.skills || []),
+          cgpa: Number(s.cgpa)
         }));
 
         setStudents(formattedData);
@@ -108,24 +125,6 @@ export default function App() {
 
     fetchStudents();
   }, []);
-
-  const handleLogin = (role) => {
-    setUserRole(role);
-    setIsLoggedIn(true);
-    if (role === 'admin') {
-      setActiveView('admin');
-    } else {
-      setActiveView('students');
-    }
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserRole('');
-    setActiveView('students');
-    setSelectedStudents([]);
-    setSelectedStudent(null);
-  };
 
   const handleApplyFilters = () => {
     let filtered = [...students];
@@ -238,21 +237,12 @@ export default function App() {
     handleApplyFilters(); // Reapply other filters
   };
 
-  if (!isLoggedIn) {
-    return (
-      <>
-        <LoginPage onLogin={handleLogin} />
-        <Toaster />
-      </>
-    );
-  }
-
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar 
         activeView={activeView} 
-        onNavigate={setActiveView}
-        onLogout={handleLogout}
+        onNavigate={handleNavigate}
+        onLogout={onLogout}
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
