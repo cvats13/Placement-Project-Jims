@@ -18,12 +18,17 @@ const useStudentStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const data = await studentService.getAllStudents();
-      set({ students: data, filteredStudents: data, isLoading: false });
+      // In the new schema, data already comes with joined summary fields
+      const formattedData = data.map(s => ({
+        ...s,
+        // Backend returns JSON but we ensure it's an array for display
+        skills: typeof s.skills === 'string' ? JSON.parse(s.skills) : (s.skills || []),
+        aggregate_percentage: Number(s.aggregate_percentage || 0)
+      }));
+      set({ students: formattedData, filteredStudents: formattedData, isLoading: false });
     } catch (error) {
       const message = error.response?.data?.error || 'Failed to fetch students';
       set({ error: message, isLoading: false });
-      // In development, if the backend fails, use mock data as fallback
-      // This matches the current logic in MainDashboard.jsx
     }
   },
 
@@ -67,18 +72,19 @@ const useStudentStore = create((set, get) => ({
     if (filters.course !== 'all') {
       filtered = filtered.filter(s => s.branch === filters.course);
     }
-    if (filters.ciaThreshold > 0) {
-      filtered = filtered.filter(s => (s.avgCIA || 0) >= filters.ciaThreshold);
-    }
-    if (filters.mockTestThreshold > 0) {
-      filtered = filtered.filter(s => (s.avgMockTest || 0) >= filters.mockTestThreshold);
+    
+    // In new schema, thresholds might need to join other data, 
+    // but for the dashboard summary, we keep it simple for now or skip if not in main view
+    
+    if (filters.company !== 'all') {
+      filtered = filtered.filter(s => s.placed_company === filters.company);
     }
 
     if (searchTokens.length > 0) {
       filtered = filtered.filter(s => 
         searchTokens.some(token => 
           s.name.toLowerCase().includes(token.toLowerCase()) ||
-          s.roll_no.toLowerCase().includes(token.toLowerCase())
+          s.enrollment_no.toLowerCase().includes(token.toLowerCase())
         )
       );
     }

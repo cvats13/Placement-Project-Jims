@@ -19,9 +19,9 @@ const query = async (sql, params = []) => {
 // Automated table creation schema (uses CREATE TABLE IF NOT EXISTS — safe to run every startup)
 const initializeDatabase = async () => {
     try {
-        console.log("Initializing database tables...");
+        console.log("Initializing unified database tables...");
 
-        // 1. Users Table — preserved across restarts, any user added here can log in
+        // 1. Users Table
         await query(`
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -32,40 +32,53 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 2. Students Table
+        // 2. Students Table (Revised base profile)
         await query(`
             CREATE TABLE IF NOT EXISTS students (
                 student_id INT AUTO_INCREMENT PRIMARY KEY,
-                roll_no VARCHAR(20) UNIQUE NOT NULL,
                 name VARCHAR(100) NOT NULL,
-                branch VARCHAR(50) NOT NULL,
-                semester INT NOT NULL,
-                cgpa DECIMAL(4,2) NOT NULL,
-                backlogs INT DEFAULT 0,
-                phone VARCHAR(20),
-                email VARCHAR(100),
-                skills JSON,
-                resume_url VARCHAR(255),
-                github VARCHAR(255),
-                leetcode VARCHAR(255),
+                enrollment_no VARCHAR(50) UNIQUE NOT NULL,
+                college_shift VARCHAR(20),
+                primary_email VARCHAR(100),
+                phone VARCHAR(15),
+                student_email VARCHAR(100),
+                gender ENUM('Male', 'Female', 'Other'),
+                dob DATE,
+                pan_india BOOLEAN DEFAULT FALSE,
+                linkedin TEXT,
+                residence_type VARCHAR(50),
                 user_id INT,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
-        // 3. Academic Semesters Table
+        // 3. Academics Table (Pre-Graduation summaries)
+        await query(`
+            CREATE TABLE IF NOT EXISTS academics (
+                academic_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                level ENUM('10th', '12th', 'Graduation') NOT NULL,
+                board_or_college VARCHAR(255),
+                stream VARCHAR(100),
+                passing_year YEAR,
+                percentage DECIMAL(5,2),
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 4. Academic Semesters Table (Graduation breakdown)
         await query(`
             CREATE TABLE IF NOT EXISTS academic_semesters (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 student_id INT NOT NULL,
                 semester_number INT NOT NULL,
-                sgpa DECIMAL(4,2) NOT NULL,
+                sgpa DECIMAL(4,2),
                 FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
             )
         `);
 
-        // 4. CIA Marks Table
+        // 5. CIA Marks Table
         await query(`
             CREATE TABLE IF NOT EXISTS cia_marks (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,7 +93,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 5. Mock Tests Table
+        // 6. Mock Tests Table
         await query(`
             CREATE TABLE IF NOT EXISTS mock_tests (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -94,10 +107,84 @@ const initializeDatabase = async () => {
             )
         `);
 
-        console.log("Database tables initialized successfully.");
+        // 7. Gaps Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS gaps (
+                gap_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                has_gap BOOLEAN DEFAULT FALSE,
+                reason TEXT,
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 8. Family Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS family (
+                family_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                father_name VARCHAR(100),
+                father_occupation VARCHAR(100),
+                father_email VARCHAR(100),
+                father_phone VARCHAR(15),
+                mother_name VARCHAR(100),
+                mother_occupation VARCHAR(100),
+                mother_email VARCHAR(100),
+                mother_phone VARCHAR(15),
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 9. Addresses Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS addresses (
+                address_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                type ENUM('Permanent', 'Current') NOT NULL,
+                address TEXT,
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 10. Experiences Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS experiences (
+                exp_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                has_experience BOOLEAN DEFAULT FALSE,
+                description TEXT,
+                internship_details TEXT,
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 11. Placements Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS placements (
+                placement_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                campus_offer BOOLEAN DEFAULT FALSE,
+                details TEXT,
+                company VARCHAR(100),
+                status VARCHAR(50),
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 12. Documents Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS documents (
+                doc_id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                photo_path TEXT,
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+            )
+        `);
+
+        console.log("Unified database tables initialized successfully.");
 
     } catch (err) {
-        console.error("Error during database initialization:", err);
+        console.error("Error during unified database initialization:", err);
     }
 };
 
