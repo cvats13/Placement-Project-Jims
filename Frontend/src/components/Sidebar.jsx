@@ -9,7 +9,7 @@ export function Sidebar({ activeView, onNavigate, onLogout, userRole }) {
     { id: 'companies', label: 'Companies', icon: Building2 },
     { id: 'shortlisted', label: 'Shortlisted', icon: CheckSquare },
     { id: 'email', label: 'Email Notifications', icon: Mail },
-    ...(userRole === 'admin' ? [{ id: 'admin', label: 'Bulk Upload', icon: LayoutDashboard }] : []),
+    ...(userRole === 'admin' ? [{ id: 'admin', label: 'Batch student import', icon: LayoutDashboard }] : []),
   ];
 
   return (

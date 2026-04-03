@@ -16,7 +16,7 @@ export function AdminUploadPanel() {
     const file = e.target.files?.[0];
     if (file) {
       // Mock CSV parsing logic for demonstration
-      const mockData = Array.from({ length: 5 }, (_, i) => ({
+      const mockData = Array.from({ length: 10 }, (_, i) => ({
         student_id: Date.now() + i,
         roll_no: `2024BCA${(i + 1).toString().padStart(3, '0')}`,
         name: `Student ${i + 1}`,
@@ -110,7 +110,7 @@ export function AdminUploadPanel() {
                       <TableHead>Name</TableHead>
                       <TableHead>Branch</TableHead>
                       <TableHead>Semester</TableHead>
-                      <TableHead>CGPA</TableHead>
+                      <TableHead>CGPA (Cumulative Grade Point Average)</TableHead>
                       <TableHead>Backlogs</TableHead>
                       <TableHead>Email</TableHead>
                     </TableRow>

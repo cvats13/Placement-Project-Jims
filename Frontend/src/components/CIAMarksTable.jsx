@@ -4,7 +4,7 @@ export function CIAMarksTable({ ciaMarks }) {
   if (ciaMarks.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
-        No CIA marks recorded for this semester
+        No CIE marks recorded for this semester
       </div>
     );
   }
@@ -17,10 +17,10 @@ export function CIAMarksTable({ ciaMarks }) {
         <TableHeader>
           <TableRow className="bg-gray-50">
             <TableHead className="font-semibold">Subject</TableHead>
-            <TableHead className="text-center font-semibold">CIA 1</TableHead>
-            <TableHead className="text-center font-semibold">CIA 2</TableHead>
-            <TableHead className="text-center font-semibold">CIA 3</TableHead>
-            {hasCIA4 && <TableHead className="text-center font-semibold">CIA 4</TableHead>}
+            <TableHead className="text-center font-semibold">CIE 1</TableHead>
+            <TableHead className="text-center font-semibold">CIE 2</TableHead>
+            <TableHead className="text-center font-semibold">CIE 3</TableHead>
+            {hasCIA4 && <TableHead className="text-center font-semibold">CIE 4</TableHead>}
             <TableHead className="text-center font-semibold">Average</TableHead>
           </TableRow>
         </TableHeader>

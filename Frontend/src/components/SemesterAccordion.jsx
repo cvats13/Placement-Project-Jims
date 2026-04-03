@@ -38,12 +38,12 @@ export function SemesterAccordion({ semesters }) {
                   <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <TrendingUp className="w-3.5 h-3.5" />
-                      SGPA: <span className="font-medium text-gray-700">{semester.sgpa}</span>
+                      SGPA (Semester Grade Point Average): <span className="font-medium text-gray-700">{semester.sgpa}</span>
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <BookOpen className="w-3.5 h-3.5" />
-                      Avg CIA: <span className="font-medium text-gray-700">{semester.avgCIA.toFixed(1)}</span>
+                      Avg CIE: <span className="font-medium text-gray-700">{semester.avgCIA.toFixed(1)}</span>
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
@@ -65,7 +65,7 @@ export function SemesterAccordion({ semesters }) {
                     <TrendingUp className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-indigo-700 font-medium">SGPA</p>
+                    <p className="text-xs text-indigo-700 font-medium">SGPA (Semester Grade Point Average)</p>
                     <p className="text-2xl font-bold text-indigo-900">{semester.sgpa}</p>
                   </div>
                 </div>
@@ -77,7 +77,7 @@ export function SemesterAccordion({ semesters }) {
                     <BookOpen className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-blue-700 font-medium">Avg CIA Score</p>
+                    <p className="text-xs text-blue-700 font-medium">Avg CIE Score</p>
                     <p className="text-2xl font-bold text-blue-900">{semester.avgCIA.toFixed(1)}</p>
                   </div>
                 </div>
@@ -100,7 +100,7 @@ export function SemesterAccordion({ semesters }) {
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-indigo-600" />
-                CIA Marks
+                CIE Marks
               </h4>
               <CIAMarksTable ciaMarks={semester.ciaMarks} />
             </div>

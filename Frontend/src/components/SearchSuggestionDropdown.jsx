@@ -19,7 +19,7 @@ export function SearchSuggestionDropdown({ suggestions, onSelect, isVisible }) {
                 <span>•</span>
                 <Badge variant="outline" className="text-xs">{student.branch}</Badge>
                 <span>•</span>
-                <span>CGPA: {student.cgpa.toFixed(2)}</span>
+                <span>CGPA (Cumulative Grade Point Average): {student.cgpa.toFixed(2)}</span>
               </div>
             </div>
           </div>

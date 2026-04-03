@@ -23,7 +23,7 @@ export function PlacementReadinessCard({
           <div className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
-              <span className="text-xs font-medium text-gray-500">Overall CGPA</span>
+              <span className="text-xs font-medium text-gray-500">Overall CGPA (Cumulative Grade Point Average)</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">{cgpa.toFixed(2)}</p>
           </div>
