@@ -47,7 +47,7 @@ export function PerformanceCharts({ semesters }) {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-indigo-600" />
-            Semester SGPA Trend
+            Semester SGPA (Semester Grade Point Average) Trend
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -77,12 +77,12 @@ export function PerformanceCharts({ semesters }) {
         </CardContent>
       </Card>
 
-      {/* CIA Score Distribution */}
+      {/* CIE Score Distribution */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-indigo-600" />
-            CIA Avg by Subject
+            CIE Avg by Subject
           </CardTitle>
         </CardHeader>
         <CardContent>

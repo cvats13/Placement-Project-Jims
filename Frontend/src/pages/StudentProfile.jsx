@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Github, Code, Mail, Phone, FileText, ExternalLink, GraduationCap, Loader2 } from 'lucide-react';
+import { ArrowLeft, Github, Linkedin, Code, Mail, Phone, FileText, ExternalLink, GraduationCap, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -221,10 +221,21 @@ export function StudentProfile({ student, onBack }) {
                 </div>
                 {student.linkedin && (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <Github className="w-4 h-4 text-indigo-600" />
+                    <Linkedin className="w-4 h-4 text-indigo-600" />
                     <div>
                       <p className="text-xs text-gray-500">LinkedIn Profile</p>
                       <a href={student.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-600 hover:underline">
+                        View Profile <ExternalLink className="w-3 h-3 inline ml-1" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {student.github && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <Github className="w-4 h-4 text-indigo-600" />
+                    <div>
+                      <p className="text-xs text-gray-500">GitHub Profile</p>
+                      <a href={student.github} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-600 hover:underline">
                         View Profile <ExternalLink className="w-3 h-3 inline ml-1" />
                       </a>
                     </div>

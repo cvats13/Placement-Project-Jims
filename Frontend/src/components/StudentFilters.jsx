@@ -51,9 +51,9 @@ export function StudentFilters({ filters, onFilterChange, onApplyFilters, onRese
           </Select>
         </div>
 
-        {/* CIA Marks Threshold */}
+        {/* CIE Marks Threshold */}
         <div className="space-y-3">
-          <Label>CIA Marks Threshold: {filters.ciaThreshold}</Label>
+          <Label>CIE Marks Threshold: {filters.ciaThreshold}</Label>
           <Slider
             value={[filters.ciaThreshold]}
             onValueChange={([value]) => onFilterChange({ ...filters, ciaThreshold: value })}

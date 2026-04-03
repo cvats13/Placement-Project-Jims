@@ -27,7 +27,7 @@ export function BulkPasteModal({ isOpen, onClose, onApply }) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="w-5 h-5 text-indigo-600" />
-            Bulk Student Search
+            Student Search
           </DialogTitle>
           <p className="text-sm text-gray-500 mt-2">
             Paste multiple student names below. Names can be separated by line breaks or commas.
