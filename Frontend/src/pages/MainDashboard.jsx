@@ -13,6 +13,7 @@ import { BulkPasteModal } from '../components/BulkPasteModal';
 import { BulkSearchIndicator } from '../components/BulkSearchIndicator';
 import { FilterResultIndicator } from '../components/ui/FilterResultIndicator';
 import { EmptySearchState } from '../components/ui/EmptySearchState';
+import { Companies } from '../pages/Companies';
 import useStudentStore from '../store/useStudentStore';
 import useAuthStore from '../store/useAuthStore';
 
@@ -149,6 +150,11 @@ export function MainDashboard() {
                 onFilterChange={setFilters}
                 onApplyFilters={() => {}} // Store auto-applies
                 onResetFilters={resetFilters}
+                userRole={userRole}
+                allStudents={students}
+                searchTokens={searchTokens}
+                onSearchTokensChange={setSearchTokens}
+                onBulkPasteClick={() => setIsBulkPasteModalOpen(true)}
               />
               
               <FilterResultIndicator
@@ -170,6 +176,8 @@ export function MainDashboard() {
                 />
               )}
             </div>
+          ) : activeView === 'companies' ? (
+            <Companies />
           ) : (
             <div className="text-center py-12">
               <h2 className="text-2xl font-bold text-gray-900">

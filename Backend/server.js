@@ -14,9 +14,11 @@ const pool = require('./config/db');
 // Routes
 const studentRoutes = require('./routes/studentRoutes');
 const userRoutes = require('./routes/userRoutes');
+const companyRoutes = require('./routes/companyRoutes');
 
 app.use('/api/students', studentRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/companies', companyRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

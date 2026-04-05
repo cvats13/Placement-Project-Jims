@@ -181,7 +181,49 @@ const initializeDatabase = async () => {
             )
         `);
 
+        // 13. Companies Table
+        await query(`
+            CREATE TABLE IF NOT EXISTS companies (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                course VARCHAR(50),
+                role VARCHAR(100),
+                package DECIMAL(10,2),
+                status ENUM('Active', 'Closed', 'Upcoming') DEFAULT 'Active',
+                email VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // 14. Applications Table (Tracking)
+        await query(`
+            CREATE TABLE IF NOT EXISTS applications (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                student_id INT NOT NULL,
+                company_id INT NOT NULL,
+                round_reached INT DEFAULT 0,
+                status ENUM('Applied', 'In Progress', 'Selected', 'Rejected') DEFAULT 'Applied',
+                applied_date DATE,
+                FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+                FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+            )
+        `);
+
         console.log("Unified database tables initialized successfully.");
+
+        // SEED DATA (Optional, for development)
+        const [companies] = await query("SELECT COUNT(*) as count FROM companies");
+        if (companies[0].count === 0) {
+            console.log("Seeding initial company data...");
+            await query(`
+                INSERT INTO companies (name, course, role, package, status, email) VALUES
+                ('Google', 'MCA', 'Software Engineer', 15.5, 'Active', 'recruitment@google.com'),
+                ('Microsoft', 'MCA', 'SWE Intern', 12.0, 'Upcoming', 'hr@microsoft.com'),
+                ('Amazon', 'MCA', 'SDE-1', 14.5, 'Active', 'careers@amazon.com'),
+                ('Wipro', 'BCA', 'Process Associate', 3.5, 'Closed', 'hiring@wipro.com'),
+                ('TCS', 'BBA', 'HR Executive', 4.0, 'Active', 'hr@tcs.com')
+            `);
+        }
 
     } catch (err) {
         console.error("Error during unified database initialization:", err);
