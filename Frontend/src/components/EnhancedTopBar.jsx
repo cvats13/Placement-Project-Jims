@@ -13,6 +13,7 @@ export function EnhancedTopBar({
   userRole,
   allStudents 
 }) {
+  const showStudentSearchInTopBar = userRole !== 'placement_officer';
   const [inputValue, setInputValue] = useState('');
   const debouncedInput = useDebounce(inputValue, 300);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -97,60 +98,66 @@ export function EnhancedTopBar({
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between gap-4">
-        {/* Search Area */}
-        <div className="flex-1 max-w-3xl">
-          <div className="relative">
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 min-h-[44px] flex-wrap focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
-              <Search className="w-5 h-5 text-gray-400 ml-1" />
-              
-              {/* Token Chips */}
-              {searchTokens.map((token, index) => (
-                <SearchTokenChip
-                  key={index}
-                  name={token}
-                  onRemove={() => removeToken(index)}
+        {showStudentSearchInTopBar ? (
+          <>
+            {/* Search Area */}
+            <div className="flex-1 max-w-3xl">
+              <div className="relative">
+                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 min-h-[44px] flex-wrap focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                  <Search className="w-5 h-5 text-gray-400 ml-1" />
+                  
+                  {/* Token Chips */}
+                  {searchTokens.map((token, index) => (
+                    <SearchTokenChip
+                      key={index}
+                      name={token}
+                      onRemove={() => removeToken(index)}
+                    />
+                  ))}
+                  
+                  {/* Input Field */}
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder={searchTokens.length === 0 
+                      ? "Search students (paste multiple names separated by space, comma, or line break)" 
+                      : "Add more names..."}
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    onFocus={() => inputValue && setShowSuggestions(true)}
+                    className="flex-1 min-w-[200px] bg-transparent border-none outline-none text-sm placeholder:text-gray-400"
+                  />
+                </div>
+
+                {/* Suggestions Dropdown */}
+                <SearchSuggestionDropdown
+                  suggestions={suggestions}
+                  onSelect={handleSuggestionSelect}
+                  isVisible={showSuggestions}
                 />
-              ))}
-              
-              {/* Input Field */}
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder={searchTokens.length === 0 
-                  ? "Search students (paste multiple names separated by space, comma, or line break)" 
-                  : "Add more names..."}
-                value={inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onPaste={handlePaste}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                onFocus={() => inputValue && setShowSuggestions(true)}
-                className="flex-1 min-w-[200px] bg-transparent border-none outline-none text-sm placeholder:text-gray-400"
-              />
+              </div>
+
+              <p className="text-xs text-gray-500 mt-1.5 ml-1">
+                Example: Rahul Priya Aman or paste multiple names at once
+              </p>
             </div>
 
-            {/* Suggestions Dropdown */}
-            <SearchSuggestionDropdown
-              suggestions={suggestions}
-              onSelect={handleSuggestionSelect}
-              isVisible={showSuggestions}
-            />
-          </div>
-
-          <p className="text-xs text-gray-500 mt-1.5 ml-1">
-            Example: Rahul Priya Aman or paste multiple names at once
-          </p>
-        </div>
-
-        {/* Bulk Paste Button */}
-        <Button
-          variant="outline"
-          onClick={onBulkPasteClick}
-          className="gap-2 whitespace-nowrap"
-        >
-          <FileText className="w-4 h-4" />
-          Paste Names
-        </Button>
+            {/* Bulk Paste Button */}
+            <Button
+              variant="outline"
+              onClick={onBulkPasteClick}
+              className="gap-2 whitespace-nowrap"
+            >
+              <FileText className="w-4 h-4" />
+              Paste Names
+            </Button>
+          </>
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* User Profile */}
         <div className="flex items-center gap-3 pl-4 border-l border-gray-200">

@@ -1,14 +1,170 @@
+import { useEffect, useRef, useState } from 'react';
+import { Search, FileText } from 'lucide-react';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Label } from './ui/label';
 import { Slider } from './ui/slider';
+import { SearchTokenChip } from './ui/SearchTokenChip';
+import { SearchSuggestionDropdown } from './SearchSuggestionDropdown';
+import { useDebounce } from '../hooks/useDebounce';
 
 
 
-export function StudentFilters({ filters, onFilterChange, onApplyFilters, onResetFilters }) {
+export function StudentFilters({ 
+  filters, 
+  onFilterChange, 
+  onApplyFilters, 
+  onResetFilters,
+  userRole,
+  allStudents = [],
+  searchTokens = [],
+  onSearchTokensChange,
+  onBulkPasteClick,
+}) {
+  const showPasteNameSearch = userRole === 'placement_officer' && typeof onSearchTokensChange === 'function';
+  const [inputValue, setInputValue] = useState('');
+  const debouncedInput = useDebounce(inputValue, 300);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!showPasteNameSearch) return;
+
+    if (debouncedInput.trim().length > 0) {
+      const filtered = allStudents
+        .filter(student =>
+          student.name.toLowerCase().includes(debouncedInput.toLowerCase()) ||
+          student.roll_no.toLowerCase().includes(debouncedInput.toLowerCase())
+        )
+        .slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [debouncedInput, allStudents, showPasteNameSearch]);
+
+  const addToken = (name) => {
+    if (!name || searchTokens.includes(name)) return;
+    onSearchTokensChange([...searchTokens, name]);
+  };
+
+  const removeToken = (index) => {
+    onSearchTokensChange(searchTokens.filter((_, i) => i !== index));
+  };
+
+  const handleBulkAdd = (text) => {
+    const names = text
+      .split(/[\n,]+/)
+      .flatMap(line => line.trim().split(/\s{2,}/))
+      .map(name => name.trim())
+      .filter(name => name.length > 0 && !searchTokens.includes(name));
+
+    if (names.length > 0) {
+      onSearchTokensChange([...searchTokens, ...names]);
+      setInputValue('');
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+
+    if (value.includes(',') || value.includes('\n')) {
+      handleBulkAdd(value);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && inputValue.trim()) {
+      e.preventDefault();
+      addToken(inputValue.trim());
+      setInputValue('');
+      setShowSuggestions(false);
+    } else if (e.key === 'Backspace' && !inputValue && searchTokens.length > 0) {
+      onSearchTokensChange(searchTokens.slice(0, -1));
+    }
+  };
+
+  const handlePaste = (e) => {
+    const pastedText = e.clipboardData.getData('text');
+    if (pastedText.includes(',') || pastedText.includes('\n') || pastedText.split(' ').length > 2) {
+      e.preventDefault();
+      handleBulkAdd(pastedText);
+    }
+  };
+
+  const handleSuggestionSelect = (student) => {
+    addToken(student.name);
+    setInputValue('');
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-6 space-y-6">
       <h3 className="font-semibold text-gray-900">Filter Students</h3>
+
+      {showPasteNameSearch && (
+        <div className="space-y-2">
+          <div className="flex items-start gap-3">
+            <div className="flex-1">
+              <div className="relative">
+                <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 min-h-[44px] flex-wrap focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                  <Search className="w-5 h-5 text-gray-400 ml-1" />
+
+                  {searchTokens.map((token, index) => (
+                    <SearchTokenChip
+                      key={index}
+                      name={token}
+                      onRemove={() => removeToken(index)}
+                    />
+                  ))}
+
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder={searchTokens.length === 0 
+                      ? "Search students (paste multiple names separated by space, comma, or line break)" 
+                      : "Add more names..."}
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    onFocus={() => inputValue && setShowSuggestions(true)}
+                    className="flex-1 min-w-[200px] bg-transparent border-none outline-none text-sm placeholder:text-gray-400"
+                  />
+                </div>
+
+                <SearchSuggestionDropdown
+                  suggestions={suggestions}
+                  onSelect={handleSuggestionSelect}
+                  isVisible={showSuggestions}
+                />
+              </div>
+
+              <p className="text-xs text-gray-500 mt-1.5 ml-1">
+                Example: Rahul Priya Aman or paste multiple names at once
+              </p>
+            </div>
+
+            {typeof onBulkPasteClick === 'function' && (
+              <Button
+                variant="outline"
+                onClick={onBulkPasteClick}
+                className="gap-2 whitespace-nowrap"
+              >
+                <FileText className="w-4 h-4" />
+                Paste Names
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Course Filter */}
