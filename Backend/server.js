@@ -9,15 +9,15 @@ app.use(cors()); // Enable CORS for the frontend
 app.use(express.json());
 
 // Database connection
-const pool = require('./config/db');
+const pool = require('./src/config/db');
 
 // Routes
-const studentRoutes = require('./routes/studentRoutes');
-const userRoutes = require('./routes/userRoutes');
-const companyRoutes = require('./routes/companyRoutes');
+const studentRoutes = require('./src/routes/studentRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const companyRoutes = require('./src/routes/companyRoutes');
 
 app.use('/api/students', studentRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', authRoutes); // Map /api/users to authRoutes
 app.use('/api/companies', companyRoutes);
 
 // Basic health check
@@ -28,3 +28,4 @@ app.get('/health', (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
+

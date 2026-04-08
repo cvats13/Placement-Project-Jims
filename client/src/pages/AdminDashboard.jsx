@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from '../components/ui/sonner';
 import { Sidebar } from '../components/Sidebar';
@@ -17,7 +17,7 @@ import { Companies } from '../pages/Companies';
 import useStudentStore from '../store/useStudentStore';
 import useAuthStore from '../store/useAuthStore';
 
-export function MainDashboard() {
+export function AdminDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
@@ -37,18 +37,8 @@ export function MainDashboard() {
   } = useStudentStore();
 
   const path = location.pathname.replace(/^\/+/, '');
-  const activeView = path || (userRole === 'admin' ? 'admin' : 'students');
-
-  useEffect(() => {
-    if (location.pathname === '/') {
-      const isValidRole = userRole === 'admin' || userRole === 'placement_officer';
-      if (!isValidRole) {
-        logout(); // Force logout to clear invalid session and gracefully break infinite redirects
-      } else {
-        navigate('/students', { replace: true });
-      }
-    }
-  }, [location.pathname, navigate, userRole, logout]);
+  // For Admin, default view is admin (upload panel)
+  const activeView = (path === 'admin-dashboard' || !path) ? 'admin' : path;
 
   useEffect(() => {
     fetchStudents();
@@ -85,15 +75,14 @@ export function MainDashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/signin');
   };
 
-  // Optimization: useMemo for calculations if needed, though Zustand handles most of it
   const matchedCount = filteredStudents.length;
   const totalCount = students.length;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 font-sans">
       <Sidebar 
         activeView={activeView} 
         onNavigate={handleNavigate}
@@ -130,13 +119,13 @@ export function MainDashboard() {
               student={selectedStudent}
               onBack={handleBackToList}
             />
-          ) : activeView === 'admin' ? (
+          ) : activeView === 'admin' || activeView === 'admin-dashboard' ? (
             <AdminUploadPanel />
           ) : activeView === 'students' ? (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Student</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Students</h2>
                 </div>
               </div>
               
@@ -148,7 +137,7 @@ export function MainDashboard() {
               <StudentFilters
                 filters={filters}
                 onFilterChange={setFilters}
-                onApplyFilters={() => {}} // Store auto-applies
+                onApplyFilters={() => {}} 
                 onResetFilters={resetFilters}
                 userRole={userRole}
                 allStudents={students}

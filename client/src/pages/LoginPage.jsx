@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -92,6 +93,7 @@ export function LoginPage() {
                   <SelectContent>
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="placement_officer">Placement Officer</SelectItem>
+                    <SelectItem value="user">Student</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -104,12 +106,23 @@ export function LoginPage() {
                 {isLoading ? 'Signing in...' : 'Login'}
               </Button>
 
-              <button
-                type="button"
-                className="w-full text-sm text-indigo-600 hover:text-indigo-700 hover:underline"
-              >
-                Forgot Password?
-              </button>
+              <div className="flex items-center justify-between mt-2">
+                <button
+                  type="button"
+                  className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline font-medium"
+                >
+                  Forgot Password?
+                </button>
+                <div className="text-sm">
+                  <span className="text-gray-500">New here? </span>
+                  <Link
+                    to="/signup"
+                    className="text-indigo-600 hover:text-indigo-700 hover:underline font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
             </form>
           </div>
 
