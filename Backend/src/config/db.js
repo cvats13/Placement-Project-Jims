@@ -39,7 +39,7 @@ const initializeDatabase = async () => {
                 college_shift VARCHAR(50),
                 primary_email VARCHAR(100),
                 student_email VARCHAR(100),
-                phone VARCHAR(20),
+                phone VARCHAR(50),
                 gender VARCHAR(20),
                 dob DATE,
                 linkedin VARCHAR(255),
@@ -87,9 +87,9 @@ const initializeDatabase = async () => {
                 father_name VARCHAR(100),
                 father_occupation VARCHAR(100),
                 father_email VARCHAR(100),
-                father_phone VARCHAR(20),
+                father_phone VARCHAR(50),
                 mother_name VARCHAR(100),
-                mother_phone VARCHAR(20),
+                mother_phone VARCHAR(50),
                 mother_email VARCHAR(100),
                 FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
             )
@@ -215,6 +215,37 @@ const initializeDatabase = async () => {
         `);
 
         console.log("✅ Database tables initialized and updated successfully.");
+        // 14. Import Logs (Batch Tracking)
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS import_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                file_name VARCHAR(255) NOT NULL,
+                uploaded_by INT,
+                total_rows INT DEFAULT 0,
+                success_rows INT DEFAULT 0,
+                failed_rows INT DEFAULT 0,
+                status ENUM('pending', 'completed', 'canceled') DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+            )
+        `);
+
+        // 15. Import Staging (Pre-validation Storage)
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS import_staging (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                batch_id INT NOT NULL,
+                import_row_number INT NOT NULL,
+                enrollment_no VARCHAR(50),
+                raw_data_json JSON NOT NULL,
+                validation_status ENUM('valid', 'invalid') DEFAULT 'valid',
+                error_message TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (batch_id) REFERENCES import_logs(id) ON DELETE CASCADE
+            )
+        `);
+
+        console.log("✅ Database tables initialized successfully.");
     } catch (err) {
         console.error("❌ Error during database initialization:", err);
         throw err; // Propagate error so server knows initialization failed
