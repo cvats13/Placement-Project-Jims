@@ -26,10 +26,14 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Handle unauthorized (e.g., redirect to login or clear store)
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const originalRequest = error.config;
+      // Skip redirect if this is the login request itself
+      if (originalRequest && !originalRequest.url.includes('/login') && !originalRequest.url.includes('/signin') && !originalRequest.url.includes('/signup')) {
+        // Handle unauthorized (e.g., redirect to login or clear store)
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

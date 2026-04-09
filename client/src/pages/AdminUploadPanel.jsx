@@ -10,28 +10,91 @@ import useStudentStore from '../store/useStudentStore';
 export function AdminUploadPanel() {
   const [previewData, setPreviewData] = useState([]);
   const [isUploaded, setIsUploaded] = useState(false);
+  const [missingHeaders, setMissingHeaders] = useState([]);
   const { uploadStudents, isLoading } = useStudentStore();
+
+  const REQUIRED_HEADERS = [
+    'Student Name', 'College Shift', 'Enrollment No.', 'Course', 'Primary Email ID', 
+    'Mobile Number', 'Student JIMS Email Id', 'Gender', 'Date of Birth (DD/MM/YYYY Format Only)'
+  ];
+
+  const OPTIONAL_HEADERS = [
+    'LinkedIn Profile Link', 'GitHub Profile Link', 'Technical Skills', 
+    '10th Board Name', '10th passing Year', '10th %', '12th Board Name', '12th Passing Year', '12th %', '12th Stream', 
+    'Graduation College/ Institute Name', 'Graduation Stream', 'Graduation Passing Year', 'Graduation %',
+    'Sem 1 SGPA', 'Sem 2 SGPA', 'Sem 3 SGPA', 'Sem 4 SGPA', 'Sem 5 SGPA', 'Sem 6 SGPA',
+    'Any Gap', 'Reason of Gap ( if no gap , write NA)', 'Open to Pan India Location',
+    'Fathers Name', 'Father Occupation', 'Fathers Email ID', 'Father Mobile No.', 
+    'Mothers Name', 'Mothers Mobile Number', 'Mothers Email ID',
+    'Student Residence / Belong to', 'Permanent Address', 'Current Address',
+    'Any previous work Experience', 'Internship /Project Details ( otherwise write NA)', 'What you have done',
+    'Any Previous campus selection/ offer in Graduation.', 'Current Placement Status', 'Placed Company Name'
+  ];
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Mock CSV parsing logic for demonstration
-      const mockData = Array.from({ length: 10 }, (_, i) => ({
-        student_id: Date.now() + i,
-        roll_no: `2024BCA${(i + 1).toString().padStart(3, '0')}`,
-        name: `Student ${i + 1}`,
-        branch: ['BCA', 'MCA', 'BBA'][i % 3],
-        semester: Math.floor(Math.random() * 6) + 1,
-        cgpa: (Math.random() * 2 + 7).toFixed(2),
-        backlogs: Math.floor(Math.random() * 3),
-        phone: `+91 98765${String(i).padStart(5, '0')}`,
-        email: `student${i + 1}@college.edu`,
-        skills: ['JavaScript', 'React', 'Python', 'Java'].slice(0, Math.floor(Math.random() * 3) + 2),
-        resume_url: `https://example.com/resume${i + 1}.pdf`,
-      }));
-      
-      setPreviewData(mockData);
-      toast.success('CSV file loaded successfully!');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target.result;
+        const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+        
+        if (lines.length < 2) {
+          toast.error("CSV file is empty or missing data rows");
+          return;
+        }
+
+        // Better CSV parsing regex to handle quoted values (e.g., "Java, React, SQL")
+        const parseCSVLine = (line) => {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          result.push(current.trim());
+          return result;
+        };
+
+        const headers = parseCSVLine(lines[0]);
+        
+        // Validate required headers
+        const missing = REQUIRED_HEADERS.filter(h => !headers.includes(h));
+        if (missing.length > 0) {
+          setMissingHeaders(missing);
+          toast.error("Missing required headers!");
+          return;
+        }
+
+        setMissingHeaders([]);
+
+        // Parse rows
+        const data = lines.slice(1).map(line => {
+          const values = parseCSVLine(line);
+          const obj = {};
+          headers.forEach((header, index) => {
+            // Remove surround quotes if present
+            let val = values[index] || '';
+            if (val.startsWith('"') && val.endsWith('"')) {
+              val = val.substring(1, val.length - 1);
+            }
+            obj[header] = val;
+          });
+          return obj;
+        });
+
+        setPreviewData(data);
+        toast.success(`CSV loaded with ${data.length} student records!`);
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -43,9 +106,9 @@ export function AdminUploadPanel() {
       setTimeout(() => {
         setPreviewData([]);
         setIsUploaded(false);
-      }, 2000);
+      }, 3000);
     } catch (error) {
-      toast.error('Failed to upload data');
+      toast.error(error.message || 'Failed to upload data');
     }
   };
 
@@ -53,20 +116,32 @@ export function AdminUploadPanel() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Upload Student Data</CardTitle>
+          <CardTitle>Mega-CSV Student Importer</CardTitle>
           <p className="text-sm text-gray-500">
-            Upload a CSV file containing student information
+            Sync student data across all tables using your master Excel sheet.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Validation Warnings */}
+          {missingHeaders.length > 0 && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h4 className="text-sm font-bold text-red-800 flex items-center gap-2 mb-2">
+                <X className="w-4 h-4" /> Missing Required Headers:
+              </h4>
+              <ul className="text-xs text-red-700 list-disc list-inside grid grid-cols-2 gap-1">
+                {missingHeaders.map(h => <li key={h}>{h}</li>)}
+              </ul>
+              <p className="text-xs text-red-600 mt-2 font-medium">Please correct the column names in your CSV file and try again.</p>
+            </div>
+          )}
+
           {/* Upload Area */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-indigo-500 transition-colors">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-indigo-500 transition-colors bg-gray-50/50">
             <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
             <label className="cursor-pointer">
-              <span className="text-indigo-600 hover:text-indigo-700 font-medium">
-                Click to upload
+              <span className="text-indigo-600 hover:text-indigo-700 font-bold text-lg">
+                Choose CSV File
               </span>
-              <span className="text-gray-600"> or drag and drop</span>
               <input
                 type="file"
                 accept=".csv"
@@ -74,76 +149,82 @@ export function AdminUploadPanel() {
                 onChange={handleFileUpload}
               />
             </label>
-            <p className="text-sm text-gray-500 mt-2">CSV file (MAX. 10MB)</p>
+            <p className="text-sm text-gray-500 mt-2">Upload your master placement spreadsheet (.csv)</p>
           </div>
 
           {/* Expected Data Structure */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+          <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+            <h4 className="font-bold text-indigo-900 mb-2 flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Expected CSV Format
+              Required Column Logic
             </h4>
-            <div className="text-sm text-gray-600 space-y-1 font-mono">
-              <p>student_id, roll_no, name, branch, semester, cgpa, backlogs,</p>
-              <p>phone, email, skills, resume_url</p>
+            <div className="text-xs text-indigo-800 space-y-2">
+              <p><strong>Mandatory:</strong> Student Name, Enrollment No., College Shift, Course, Email, Mobile, DOB (DD/MM/YYYY)</p>
+              <p><strong>Optional:</strong> Father/Mother details, Address, Gaps, Experience, Semester SGPAs (Sem 1 SGPA, etc.)</p>
             </div>
           </div>
 
           {/* Preview Table */}
           {previewData.length > 0 && (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-in slide-in-from-bottom-5 duration-500">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-900">Preview Data ({previewData.length} records)</h4>
+                <h4 className="font-bold text-gray-900">Previewing {previewData.length} Students</h4>
                 {isUploaded && (
                   <div className="flex items-center gap-2 text-green-600">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">Upload Successful!</span>
+                    <span className="font-bold">Sync Complete!</span>
                   </div>
                 )}
               </div>
 
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-lg overflow-hidden shadow-sm">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Roll No</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Branch</TableHead>
-                      <TableHead>Semester</TableHead>
-                      <TableHead>CGPA (Cumulative Grade Point Average)</TableHead>
-                      <TableHead>Backlogs</TableHead>
-                      <TableHead>Email</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="font-bold">Enrollment No.</TableHead>
+                      <TableHead className="font-bold">Student Name</TableHead>
+                      <TableHead className="font-bold">Course</TableHead>
+                      <TableHead className="font-bold">10th %</TableHead>
+                      <TableHead className="font-bold">12th %</TableHead>
+                      <TableHead className="font-bold">Grad %</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {previewData.map((student) => (
-                      <TableRow key={student.student_id}>
-                        <TableCell>{student.roll_no}</TableCell>
-                        <TableCell>{student.name}</TableCell>
-                        <TableCell>{student.branch}</TableCell>
-                        <TableCell>{student.semester}</TableCell>
-                        <TableCell>{student.cgpa}</TableCell>
-                        <TableCell>{student.backlogs}</TableCell>
-                        <TableCell>{student.email}</TableCell>
+                    {previewData.slice(0, 5).map((student, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-medium">{student['Enrollment No.']}</TableCell>
+                        <TableCell>{student['Student Name']}</TableCell>
+                        <TableCell>{student['Course']}</TableCell>
+                        <TableCell>{student['10th %'] || 'N/A'}</TableCell>
+                        <TableCell>{student['12th %'] || 'N/A'}</TableCell>
+                        <TableCell>{student['Graduation %'] || 'N/A'}</TableCell>
                       </TableRow>
                     ))}
+                    {previewData.length > 5 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-gray-400 text-xs py-4 bg-gray-50/50">
+                          ... and {previewData.length - 5} more records
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
 
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-end pt-4">
                 <Button 
                   variant="outline" 
                   onClick={() => setPreviewData([])}
+                  disabled={isLoading}
                 >
-                  Cancel
+                  Clear
                 </Button>
                 <Button 
                   onClick={handleConfirmUpload}
-                  className="bg-indigo-600 hover:bg-indigo-700"
-                  disabled={isUploaded}
+                  className="bg-indigo-600 hover:bg-indigo-700 font-bold px-8"
+                  disabled={isUploaded || isLoading}
                 >
-                  {isUploaded ? 'Uploaded' : 'Confirm Upload'}
+                  {isLoading ? 'Processing...' : 'Sync to Database'}
                 </Button>
               </div>
             </div>
@@ -152,27 +233,27 @@ export function AdminUploadPanel() {
       </Card>
 
       {/* Instructions Card */}
-      <Card>
+      <Card className="border-l-4 border-l-amber-400">
         <CardHeader>
-          <CardTitle>Upload Instructions</CardTitle>
+          <CardTitle className="text-lg">CSV Preparation Tips</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm text-gray-600">
-            <li className="flex items-start gap-2">
-              <span className="text-indigo-600 font-medium">1.</span>
-              <span>Ensure your CSV file has all required columns in the correct order</span>
+          <ul className="space-y-3 text-sm text-gray-600">
+            <li className="flex items-start gap-3">
+              <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</div>
+              <span><strong>Header Names:</strong> Use the exact names like `Fathers Name` or `12th %`. The system is sensitive to typos in the header row.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-indigo-600 font-medium">2.</span>
-              <span>Skills should be comma-separated within quotes (e.g., "Java,Python,React")</span>
+            <li className="flex items-start gap-3">
+              <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</div>
+              <span><strong>Date Format:</strong> Ensure Date of Birth is in <code>DD/MM/YYYY</code> format.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-indigo-600 font-medium">3.</span>
-              <span>Resume URL should be a valid link to the student's resume</span>
+            <li className="flex items-start gap-3">
+              <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</div>
+              <span><strong>Empty Values:</strong> If data is missing for optional fields (like Gap Reason), leave the cell empty or write <code>NA</code>.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-indigo-600 font-medium">4.</span>
-              <span>Review the preview table before confirming the upload</span>
+            <li className="flex items-start gap-3">
+              <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</div>
+              <span><strong>Enrollment No.:</strong> This is the unique key. Uploading a student with an existing Enrollment No. will <strong>update</strong> their profile with the new data.</span>
             </li>
           </ul>
         </CardContent>
@@ -180,3 +261,4 @@ export function AdminUploadPanel() {
     </div>
   );
 }
+

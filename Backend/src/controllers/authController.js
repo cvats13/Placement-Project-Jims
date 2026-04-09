@@ -13,21 +13,23 @@ exports.signup = async (req, res) => {
         // Check if user exists
         const [existing] = await db.query('SELECT email FROM users WHERE email = ?', [email]);
         if (existing.length > 0) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(400).json({ error: 'An account with this email already exists' });
         }
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Insert user
+        // Insert user (default is_approved to 0)
+        // We allow the role from body, but default to 'user'
+        const userRole = role || 'user';
         const result = await db.query(
-            'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, "user")',
-            [name, email, hashedPassword]
+            'INSERT INTO users (name, email, password, role, is_approved) VALUES (?, ?, ?, ?, 0)',
+            [name, email, hashedPassword, userRole]
         );
 
         res.status(201).json({ 
-            message: 'User registered successfully', 
+            message: 'Registration successful! Please wait for administrator approval before logging in.', 
             userId: result[0].insertId 
         });
     } catch (err) {
@@ -41,26 +43,34 @@ exports.signin = async (req, res) => {
         const { email, password, role } = req.body;
 
         if (!email || !password || !role) {
-            return res.status(400).json({ error: 'All fields are required (Email, Password, and intended Role)' });
+            return res.status(400).json({ error: 'Please provide email, password, and select your role.' });
         }
         
-        // Find user by email
-        // We check the role separately to allow redirection or error based on role mismatch
         const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         if (rows.length === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
         const user = rows[0];
 
+        // 1. Role Check
         if (user.role !== role) {
-            return res.status(401).json({ error: 'Role mismatch. Please select the correct role or wait for admin approval.' });
+            return res.status(401).json({ 
+                error: `Role mismatch. This account is registered as a ${user.role.replace('_', ' ')}. Please select the correct role.` 
+            });
         }
 
-        // Check password
+        // 2. Approval Check
+        if (!user.is_approved) {
+            return res.status(403).json({ 
+                error: 'Your account is pending administrator approval. Please try again later or contact the admin.' 
+            });
+        }
+
+        // 3. Password Check
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid email or password.' });
         }
 
         // Create JWT
@@ -83,3 +93,19 @@ exports.signin = async (req, res) => {
         res.status(500).json({ error: 'Server error during signin' });
     }
 };
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+        
+        // Mock success response
+        res.json({ message: 'If this email is registered, you will receive a reset link shortly.' });
+    } catch (err) {
+        console.error('Forgot password error:', err);
+        res.status(500).json({ error: 'Server error during forgot password' });
+    }
+};
+

@@ -15,10 +15,12 @@ const pool = require('./src/config/db');
 const studentRoutes = require('./src/routes/studentRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const companyRoutes = require('./src/routes/companyRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
 
 app.use('/api/students', studentRoutes);
 app.use('/api/users', authRoutes); // Map /api/users to authRoutes
 app.use('/api/companies', companyRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {

@@ -9,6 +9,7 @@ import { SelectionActionBar } from '../components/SelectionActionBar';
 import { EmailModal } from '../components/EmailModal';
 import { StudentProfile } from '../pages/StudentProfile';
 import { AdminUploadPanel } from '../pages/AdminUploadPanel';
+import { UserApproval } from '../pages/UserApproval';
 import { BulkPasteModal } from '../components/BulkPasteModal';
 import { BulkSearchIndicator } from '../components/BulkSearchIndicator';
 import { FilterResultIndicator } from '../components/ui/FilterResultIndicator';
@@ -58,6 +59,11 @@ export function MainDashboard() {
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
+
+  // Reset selected student when navigating between sidebar views
+  useEffect(() => {
+    setSelectedStudent(null);
+  }, [location.pathname]);
 
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -112,13 +118,15 @@ export function MainDashboard() {
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <EnhancedTopBar 
-          searchTokens={searchTokens}
-          onSearchTokensChange={setSearchTokens}
-          onBulkPasteClick={() => setIsBulkPasteModalOpen(true)}
-          userRole={userRole}
-          allStudents={students}
-        />
+        {userRole !== 'placement_officer' && (
+          <EnhancedTopBar 
+            searchTokens={searchTokens}
+            onSearchTokensChange={setSearchTokens}
+            onBulkPasteClick={() => setIsBulkPasteModalOpen(true)}
+            userRole={userRole}
+            allStudents={students}
+          />
+        )}
         
         <main className="flex-1 overflow-y-auto p-6">
           {isLoading && students.length === 0 ? (
@@ -186,6 +194,8 @@ export function MainDashboard() {
                 />
               )}
             </div>
+          ) : activeView === 'user-approval' ? (
+            <UserApproval />
           ) : activeView === 'companies' ? (
             <Companies />
           ) : (

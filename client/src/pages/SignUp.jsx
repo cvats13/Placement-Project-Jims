@@ -8,11 +8,23 @@ export function SignUp() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('user'); // Default to Student
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword || !role) {
       toast.error("Please fill all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
       return;
     }
     
@@ -20,14 +32,15 @@ export function SignUp() {
       await axios.post('http://localhost:3000/api/users/signup', {
         name,
         email,
-        password
+        password,
+        role
       });
       
-      toast.success("Registration successful! You can now log in.");
-      setTimeout(() => navigate('/login'), 1500);
+      toast.success("Registration successful! Please wait for admin approval.");
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error("Signup error:", err);
-      toast.error(err.response?.data?.error || "Registration failed or user already exists");
+      toast.error(err.response?.data?.error || "Registration failed. This account may already exist.");
     }
   };
 
@@ -51,17 +64,17 @@ export function SignUp() {
       </div>
 
       {/* Right Side - Signup Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-xl shadow-lg p-8 space-y-8 mt-6 mb-6">
+      <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 overflow-y-auto">
+        <div className="w-full max-w-md my-8">
+          <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-bold text-gray-900">Sign Up</h2>
               <p className="text-gray-500">Register your placement account</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2 flex flex-col">
-                <label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Full Name</label>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5 flex flex-col">
+                <label htmlFor="name" className="text-sm font-medium leading-none">Full Name</label>
                 <input
                   id="name"
                   type="text"
@@ -69,12 +82,25 @@ export function SignUp() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               </div>
 
-              <div className="space-y-2 flex flex-col">
-                <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
+              <div className="space-y-1.5 flex flex-col">
+                <label htmlFor="role" className="text-sm font-medium leading-none">Select Role</label>
+                <select
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                >
+                  <option value="user">Student</option>
+                  <option value="placement_officer">Placement Officer</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5 flex flex-col">
+                <label htmlFor="email" className="text-sm font-medium leading-none">Email</label>
                 <input
                   id="email"
                   type="email"
@@ -82,27 +108,41 @@ export function SignUp() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               </div>
 
-              <div className="space-y-2 flex flex-col">
-                <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="Create a password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5 flex flex-col">
+                  <label htmlFor="password" className="text-sm font-medium leading-none">Password</label>
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="Create"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  />
+                </div>
 
+                <div className="space-y-1.5 flex flex-col">
+                  <label htmlFor="confirmPassword" className="text-sm font-medium leading-none">Confirm</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Repeat"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  />
+                </div>
+              </div>
 
               <button 
                 type="submit" 
-                className="w-full inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-700 h-10 px-4 py-2 mt-2"
+                className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 h-10 px-4 py-2 font-medium"
               >
                 Sign Up
               </button>
@@ -111,17 +151,13 @@ export function SignUp() {
                 <span className="text-sm text-gray-500">Already have an account? </span>
                 <Link
                   to="/login"
-                  className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline font-medium"
+                  className="text-sm text-indigo-600 hover:underline font-medium"
                 >
                   Sign In
                 </Link>
               </div>
             </form>
           </div>
-
-          <p className="text-center mt-4 text-gray-500 text-sm">
-            Placement Management System
-          </p>
         </div>
       </div>
     </div>

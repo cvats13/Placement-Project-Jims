@@ -30,10 +30,13 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
             <TableHead>Enrollment No</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Branch</TableHead>
-            <TableHead>Aggregate %</TableHead>
+            <TableHead>10th %</TableHead>
+            <TableHead>12th %</TableHead>
+            <TableHead>Grad %</TableHead>
+            <TableHead>CGPA</TableHead>
             <TableHead>Company</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Skills</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -55,12 +58,15 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
                 <HighlightedText text={student.name} searchTokens={searchTokens} />
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{student.branch || 'N/A'}</Badge>
+                <Badge variant="outline">{student.course || 'N/A'}</Badge>
               </TableCell>
-              <TableCell>
-                <span className={student.aggregate_percentage >= 75 ? 'text-green-600 font-medium' : ''}>
-                  {student.aggregate_percentage ? `${student.aggregate_percentage}%` : 'N/A'}
-                </span>
+              <TableCell className="text-sm">{student.percentage_10th ? `${student.percentage_10th}%` : '---'}</TableCell>
+              <TableCell className="text-sm">{student.percentage_12th ? `${student.percentage_12th}%` : '---'}</TableCell>
+              <TableCell className="text-sm font-medium text-indigo-600">
+                {student.aggregate_percentage ? `${student.aggregate_percentage}%` : '---'}
+              </TableCell>
+              <TableCell className="text-sm font-bold">
+                {student.current_cgpa ? Number(student.current_cgpa).toFixed(2) : '---'}
               </TableCell>
               <TableCell>
                 <span className="text-gray-600 font-medium">
@@ -71,20 +77,6 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
                 <Badge variant={student.placement_status === 'Placed' ? 'success' : 'secondary'}>
                   {student.placement_status || 'In-Process'}
                 </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1 max-w-xs">
-                  {student.skills.slice(0, 2).map((skill, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                  {student.skills.length > 2 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{student.skills.length - 2}
-                    </Badge>
-                  )}
-                </div>
               </TableCell>
               <TableCell onClick={(e) => e.stopPropagation()}>
                 <Button 
