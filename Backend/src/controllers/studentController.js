@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const emailService = require('../services/emailService');
 
 // @desc Get all students (with summary info for main list)
 // @route GET /api/students
@@ -286,5 +287,108 @@ exports.bulkUploadStudents = async (req, res) => {
         res.status(500).json({ error: 'Server error during bulk upload' });
     } finally {
         if (connection) connection.release();
+    }
+};
+// @desc Send student details to company via email
+// @route POST /api/students/send-to-company
+exports.sendStudentsToCompany = async (req, res) => {
+    try {
+        const { companyEmail, subject, message } = req.body;
+
+        console.log('📧 Email request received:', { companyEmail, subject });
+        console.log('📧 API Key available:', !!process.env.BREVO_API_KEY);
+        console.log('📧 API Key prefix:', process.env.BREVO_API_KEY?.substring(0, 15));
+
+        if (!companyEmail || !subject || !message) {
+            return res.status(400).json({ error: 'Missing required fields: companyEmail, subject, or message' });
+        }
+
+        // Plain text version prevents Gmail's Promotions classification
+        const textContent = message;
+
+        // Minimal HTML - no colors, no tables, no marketing feel
+        const htmlContent = `<html><body style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#000;">${message.replace(/\n/g, '<br>')}</body></html>`;
+
+        const result = await emailService.sendBrevoEmail({
+            to: companyEmail,
+            subject: subject,
+            htmlContent: htmlContent,
+            textContent: textContent
+        });
+
+        console.log('✅ Email sent successfully! Brevo response:', result);
+        res.json({ message: 'Email sent successfully to ' + companyEmail });
+    } catch (err) {
+        console.error('❌ Error in sendStudentsToCompany:', err.message);
+        res.status(500).json({ error: 'Failed to send email: ' + err.message });
+    }
+};
+
+// @desc Notify selected students via email
+// @route POST /api/students/notify-students
+exports.notifyStudents = async (req, res) => {
+    try {
+        const { studentIds, subject, message } = req.body;
+
+        if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+            return res.status(400).json({ error: 'No student IDs provided' });
+        }
+        if (!subject || !message) {
+            return res.status(400).json({ error: 'Subject and message are required' });
+        }
+
+        // ✅ ALWAYS fetch fresh data from DB — never trust stale frontend cache
+        const placeholders = studentIds.map(() => '?').join(',');
+        const [freshStudents] = await db.query(
+            `SELECT student_id, name, enrollment_no, course, student_email, primary_email FROM students WHERE student_id IN (${placeholders})`,
+            studentIds
+        );
+
+        if (freshStudents.length === 0) {
+            return res.status(404).json({ error: 'No students found for the given IDs' });
+        }
+
+        const results = { sent: [], failed: [] };
+
+        for (const student of freshStudents) {
+            // Use the LATEST email from DB, prioritize student_email over primary_email
+            const recipientEmail = student.student_email || student.primary_email;
+            if (!recipientEmail) {
+                results.failed.push({ name: student.name, reason: 'No email address found in database' });
+                continue;
+            }
+
+            try {
+                const personalizedMessage = message
+                    .replace(/\[Student Name\]/g, student.name)
+                    .replace(/\[Enrollment No\]/g, student.enrollment_no || '')
+                    .replace(/\[Course\]/g, student.course || '');
+
+                const htmlContent = `<html><body style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#000;">${personalizedMessage.replace(/\n/g, '<br>')}</body></html>`;
+
+                await emailService.sendBrevoEmail({
+                    to: recipientEmail,
+                    toName: student.name,
+                    subject: subject,
+                    htmlContent: htmlContent,
+                    textContent: personalizedMessage
+                });
+
+                results.sent.push({ name: student.name, email: recipientEmail });
+                console.log(`✅ Notified: ${student.name} <${recipientEmail}>`);
+            } catch (err) {
+                console.error(`❌ Failed to notify ${student.name}:`, err.message);
+                results.failed.push({ name: student.name, reason: err.message });
+            }
+        }
+
+        res.json({
+            message: `Notifications sent: ${results.sent.length} succeeded, ${results.failed.length} failed.`,
+            sent: results.sent,
+            failed: results.failed
+        });
+    } catch (err) {
+        console.error('❌ Error in notifyStudents:', err.message);
+        res.status(500).json({ error: 'Failed to send notifications: ' + err.message });
     }
 };

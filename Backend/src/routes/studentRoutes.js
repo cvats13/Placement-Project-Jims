@@ -11,4 +11,7 @@ router.get('/:id/academic-history', studentController.getStudentAcademicHistory)
 // Bulk upload students
 router.post('/bulk', studentController.bulkUploadStudents);
 
+router.post('/send-to-company', studentController.sendStudentsToCompany);
+router.post('/notify-students', studentController.notifyStudents);
+
 module.exports = router;

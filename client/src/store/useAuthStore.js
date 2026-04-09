@@ -26,6 +26,19 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  signup: async (userData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await authService.signup(userData);
+      set({ isLoading: false });
+      return data;
+    } catch (error) {
+      const message = error.response?.data?.error || 'Registration failed';
+      set({ error: message, isLoading: false });
+      throw new Error(message);
+    }
+  },
+
   logout: () => {
     authService.logout();
     set({ user: null, token: null, isAuthenticated: false });

@@ -1,18 +1,32 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from 'sonner';
+import useAuthStore from '../store/useAuthStore';
 
 export function SignUp() {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('user'); // Default to Student
+  const { signup, isLoading } = useAuthStore();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    role: 'user'
+  });
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleRoleChange = (e) => {
+    setFormData(prev => ({ ...prev, role: e.target.value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { name, email, password, confirmPassword, role } = formData;
+
     if (!name || !email || !password || !confirmPassword || !role) {
       toast.error("Please fill all fields");
       return;
@@ -29,18 +43,12 @@ export function SignUp() {
     }
     
     try {
-      await axios.post('http://localhost:3000/api/users/signup', {
-        name,
-        email,
-        password,
-        role
-      });
-      
+      await signup({ name, email, password, role });
       toast.success("Registration successful! Please wait for admin approval.");
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error("Signup error:", err);
-      toast.error(err.response?.data?.error || "Registration failed. This account may already exist.");
+      toast.error(err.message || "Registration failed. This account may already exist.");
     }
   };
 
@@ -57,7 +65,7 @@ export function SignUp() {
             />
           </div>
           <h1 className="text-4xl font-bold tracking-tight">Join the Portal</h1>
-          <p className="text-indigo-100 text-lg leading-relaxed">
+          <p className="text-indigo-100 text-lg leading-relaxed text-center">
             Create an account to track your applications, manage events, and explore placement opportunities.
           </p>
         </div>
@@ -73,67 +81,68 @@ export function SignUp() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5 flex flex-col">
+              <div className="space-y-1.5 flex flex-col items-start">
                 <label htmlFor="name" className="text-sm font-medium leading-none">Full Name</label>
                 <input
                   id="name"
                   type="text"
                   placeholder="Enter your full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               </div>
 
-              <div className="space-y-1.5 flex flex-col">
+              <div className="space-y-1.5 flex flex-col items-start">
                 <label htmlFor="role" className="text-sm font-medium leading-none">Select Role</label>
                 <select
                   id="role"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  value={formData.role}
+                  onChange={handleRoleChange}
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer"
                 >
                   <option value="user">Student</option>
                   <option value="placement_officer">Placement Officer</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 
-              <div className="space-y-1.5 flex flex-col">
+              <div className="space-y-1.5 flex flex-col items-start">
                 <label htmlFor="email" className="text-sm font-medium leading-none">Email</label>
                 <input
                   id="email"
                   type="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5 flex flex-col">
-                  <label htmlFor="password" className="text-sm font-medium leading-none">Password</label>
+                <div className="space-y-1.5 flex flex-col items-start">
+                  <label htmlFor="password" name="password-label" className="text-sm font-medium leading-none">Password</label>
                   <input
                     id="password"
                     type="password"
                     placeholder="Create"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.password}
+                    onChange={handleChange}
                     required
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
                   />
                 </div>
 
-                <div className="space-y-1.5 flex flex-col">
-                  <label htmlFor="confirmPassword" className="text-sm font-medium leading-none">Confirm</label>
+                <div className="space-y-1.5 flex flex-col items-start">
+                  <label htmlFor="confirmPassword" name="confirmPassword-label" className="text-sm font-medium leading-none">Confirm</label>
                   <input
                     id="confirmPassword"
                     type="password"
                     placeholder="Repeat"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
                     required
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
                   />
@@ -142,9 +151,10 @@ export function SignUp() {
 
               <button 
                 type="submit" 
-                className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 h-10 px-4 py-2 font-medium"
+                className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 h-10 px-4 py-2 font-medium transition-colors"
+                disabled={isLoading}
               >
-                Sign Up
+                {isLoading ? 'Processing...' : 'Sign Up'}
               </button>
 
               <div className="text-center">

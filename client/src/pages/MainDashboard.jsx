@@ -7,6 +7,7 @@ import { StudentFilters } from '../components/StudentFilters';
 import { StudentTable } from '../components/StudentTable';
 import { SelectionActionBar } from '../components/SelectionActionBar';
 import { EmailModal } from '../components/EmailModal';
+import { NotifyStudentsModal } from '../components/NotifyStudentsModal';
 import { StudentProfile } from '../pages/StudentProfile';
 import { AdminUploadPanel } from '../pages/AdminUploadPanel';
 import { UserApproval } from '../pages/UserApproval';
@@ -68,6 +69,7 @@ export function MainDashboard() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [isBulkPasteModalOpen, setIsBulkPasteModalOpen] = useState(false);
 
   const handleNavigate = (view) => {
@@ -212,13 +214,19 @@ export function MainDashboard() {
       <SelectionActionBar
         selectedCount={selectedStudents.length}
         onSendToCompany={() => setIsEmailModalOpen(true)}
-        onNotifyStudents={() => setIsEmailModalOpen(true)}
+        onNotifyStudents={() => setIsNotifyModalOpen(true)}
       />
 
       <EmailModal
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
-        selectedCount={selectedStudents.length}
+        selectedStudents={students.filter(s => selectedStudents.includes(s.student_id))}
+      />
+
+      <NotifyStudentsModal
+        isOpen={isNotifyModalOpen}
+        onClose={() => setIsNotifyModalOpen(false)}
+        selectedStudents={students.filter(s => selectedStudents.includes(s.student_id))}
       />
 
       <BulkPasteModal

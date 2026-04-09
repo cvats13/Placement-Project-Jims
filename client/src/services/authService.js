@@ -6,6 +6,11 @@ const authService = {
     return response.data;
   },
 
+  signup: async (userData) => {
+    const response = await axiosInstance.post('/users/signup', userData);
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

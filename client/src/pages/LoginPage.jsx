@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,6 +9,7 @@ import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import useAuthStore from '../store/useAuthStore';
 
 export function LoginPage() {
+  const navigate = useNavigate();
   const { login, isLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,11 +23,11 @@ export function LoginPage() {
     }
 
     try {
-      await login({ email, password, role });
-      toast.success('Welcome back!');
+      const user = await login({ email, password, role });
+      toast.success(`Welcome back, ${user.name}!`);
+      navigate('/');
     } catch (err) {
       console.error('Login error:', err);
-      // Backend error is passed through useAuthStore
       toast.error(err.message || "Invalid credentials. Please try again.");
     }
   };
@@ -44,7 +45,7 @@ export function LoginPage() {
             />
           </div>
           <h1 className="text-4xl font-bold">Welcome to Placement Portal</h1>
-          <p className="text-indigo-100 text-lg">
+          <p className="text-indigo-100 text-lg text-center">
             Streamline your college placement process with our comprehensive management system.
             Connect students with opportunities seamlessly.
           </p>
@@ -62,7 +63,7 @@ export function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email text-left block">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -74,7 +75,7 @@ export function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password text-left block">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -86,7 +87,7 @@ export function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role text-left block">Role</Label>
                 <Select value={role} onValueChange={setRole} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />

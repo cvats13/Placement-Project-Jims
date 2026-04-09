@@ -189,7 +189,32 @@ const initializeDatabase = async () => {
             )
         `);
 
-        console.log("✅ Database tables initialized successfully.");
+        // 14. Add is_approved to users if it doesn't exist
+        await promisePool.query(`
+            IF NOT EXISTS (
+                SELECT * FROM information_schema.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'users' 
+                AND COLUMN_NAME = 'is_approved'
+            ) THEN
+                ALTER TABLE users ADD COLUMN is_approved TINYINT(1) DEFAULT 0;
+            END IF;
+        `).catch(err => {
+            // MySQL 8.0 doesn't support IF NOT EXISTS in ALTER TABLE directly without a procedure
+            // So we try a simpler approach: ignore error if column already exists
+            if (err.code !== 'ER_DUP_FIELDNAME') {
+                return promisePool.query(`ALTER TABLE users ADD COLUMN is_approved TINYINT(1) DEFAULT 0`).catch(e => {
+                    if (e.code !== 'ER_DUP_FIELDNAME') throw e;
+                });
+            }
+        });
+
+        // 15. Ensure role ENUM is correct in users table
+        await promisePool.query(`
+            ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'placement_officer', 'user') NOT NULL DEFAULT 'user'
+        `);
+
+        console.log("✅ Database tables initialized and updated successfully.");
     } catch (err) {
         console.error("❌ Error during database initialization:", err);
         throw err; // Propagate error so server knows initialization failed
