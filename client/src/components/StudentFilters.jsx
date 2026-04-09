@@ -181,7 +181,6 @@ export function StudentFilters({
               <SelectItem value="all">All Courses</SelectItem>
               <SelectItem value="BCA">BCA</SelectItem>
               <SelectItem value="MCA">MCA</SelectItem>
-              <SelectItem value="BBA">BBA</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -207,26 +206,62 @@ export function StudentFilters({
           </Select>
         </div>
 
-        {/* CIE Marks Threshold */}
+        {/* 10th Percentage Threshold */}
         <div className="space-y-3">
-          <Label>CIE Marks Threshold: {filters.ciaThreshold}</Label>
+          <Label className="text-sm font-medium flex justify-between">
+            <span>Min 10th Score</span>
+            <span className="text-indigo-600">{filters.min10th}%</span>
+          </Label>
           <Slider
-            value={[filters.ciaThreshold]}
-            onValueChange={([value]) => onFilterChange({ ...filters, ciaThreshold: value })}
+            value={[filters.min10th]}
+            onValueChange={([value]) => onFilterChange({ ...filters, min10th: value })}
             max={100}
-            step={5}
+            step={1}
             className="mt-2"
           />
         </div>
 
-        {/* Mock Test Threshold */}
+        {/* 12th Percentage Threshold */}
         <div className="space-y-3">
-          <Label>Mock Test Threshold: {filters.mockTestThreshold}</Label>
+          <Label className="text-sm font-medium flex justify-between">
+            <span>Min 12th Score</span>
+            <span className="text-indigo-600">{filters.min12th}%</span>
+          </Label>
           <Slider
-            value={[filters.mockTestThreshold]}
-            onValueChange={([value]) => onFilterChange({ ...filters, mockTestThreshold: value })}
+            value={[filters.min12th]}
+            onValueChange={([value]) => onFilterChange({ ...filters, min12th: value })}
             max={100}
-            step={5}
+            step={1}
+            className="mt-2"
+          />
+        </div>
+
+        {/* Graduation Percentage Threshold */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium flex justify-between">
+            <span>Min Graduation</span>
+            <span className="text-indigo-600">{filters.minGrad}%</span>
+          </Label>
+          <Slider
+            value={[filters.minGrad]}
+            onValueChange={([value]) => onFilterChange({ ...filters, minGrad: value })}
+            max={100}
+            step={1}
+            className="mt-2"
+          />
+        </div>
+
+        {/* Current CGPA Threshold */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium flex justify-between">
+            <span>Min CGPA</span>
+            <span className="text-indigo-600">{filters.minCGPA}</span>
+          </Label>
+          <Slider
+            value={[filters.minCGPA]}
+            onValueChange={([value]) => onFilterChange({ ...filters, minCGPA: value })}
+            max={10}
+            step={0.1}
             className="mt-2"
           />
         </div>

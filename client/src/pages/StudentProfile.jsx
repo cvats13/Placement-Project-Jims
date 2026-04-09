@@ -241,6 +241,21 @@ export function StudentProfile({ student, onBack }) {
                     </div>
                   </div>
                 )}
+                {student.skills && student.skills.length > 0 && (
+                  <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <Code className="w-4 h-4 text-indigo-600 mt-1" />
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">Technical Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {student.skills.map((skill, idx) => (
+                          <Badge key={idx} variant="secondary" className="bg-white border-indigo-100 text-indigo-700">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

@@ -159,18 +159,7 @@ export function EnhancedTopBar({
           <div className="flex-1" />
         )}
 
-        {/* User Profile */}
-        <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">
-              {userRole === 'admin' ? 'Admin' : 'Placement Officer'}
-            </p>
-            <p className="text-xs text-gray-500">Online</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-            <User className="w-5 h-5 text-indigo-600" />
-          </div>
-        </div>
+
       </div>
     </div>
   );

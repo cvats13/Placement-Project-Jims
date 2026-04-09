@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 
 // Lazy load pages
 const LoginPage = lazy(() => import('../pages/LoginPage').then(module => ({ default: module.LoginPage })));
+const SignUp = lazy(() => import('../pages/SignUp').then(module => ({ default: module.SignUp })));
 const MainDashboard = lazy(() => import('../pages/MainDashboard').then(module => ({ default: module.MainDashboard })));
 
 const LoadingFallback = () => (
@@ -22,6 +23,10 @@ export default function AppRoutes() {
                 <Route
                     path="/login"
                     element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />}
+                />
+                <Route
+                    path="/signup"
+                    element={!isAuthenticated ? <SignUp /> : <Navigate to="/" replace />}
                 />
                 
                 {/* Protected Routes */}

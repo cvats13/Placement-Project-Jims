@@ -38,7 +38,7 @@ const getTrackingData = async (req, res) => {
             SELECT 
                 s.student_id,
                 s.name AS student_name,
-                s.college_shift AS course,
+                s.course,
                 COUNT(a.id) AS applied_companies_count,
                 MAX(a.round_reached) AS highest_round_reached,
                 CASE 
@@ -50,7 +50,7 @@ const getTrackingData = async (req, res) => {
                 END AS final_status
             FROM students s
             LEFT JOIN applications a ON s.student_id = a.student_id
-            GROUP BY s.student_id, s.name, s.college_shift
+            GROUP BY s.student_id, s.name, s.course
         `;
 
         const [rows] = await pool.query(sql);
@@ -69,8 +69,8 @@ const getNonApplicants = async (req, res) => {
         const sql = `
             SELECT 
                 s.name AS student_name,
-                s.college_shift AS course,
-                (SELECT COUNT(*) FROM companies c WHERE c.course = s.college_shift OR c.course IS NULL) AS eligible_companies,
+                s.course,
+                (SELECT COUNT(*) FROM companies c WHERE c.course = s.course OR c.course IS NULL) AS eligible_companies,
                 COUNT(a.id) AS applied_companies,
                 CASE 
                     WHEN COUNT(a.id) = 0 THEN 'Not Applied'
@@ -79,7 +79,7 @@ const getNonApplicants = async (req, res) => {
                 END AS participation_status
             FROM students s
             LEFT JOIN applications a ON s.student_id = a.student_id
-            GROUP BY s.student_id, s.name, s.college_shift
+            GROUP BY s.student_id, s.name, s.course
             HAVING applied_companies < 3  -- Let's define low participation as less than 3 applications
         `;
 

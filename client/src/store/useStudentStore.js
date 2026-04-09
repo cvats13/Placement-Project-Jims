@@ -6,8 +6,10 @@ const useStudentStore = create((set, get) => ({
   filteredStudents: [],
   filters: {
     course: 'all',
-    ciaThreshold: 0,
-    mockTestThreshold: 0,
+    min10th: 0,
+    min12th: 0,
+    minGrad: 0,
+    minCGPA: 0,
     company: 'all',
   },
   searchTokens: [],
@@ -19,12 +21,33 @@ const useStudentStore = create((set, get) => ({
     try {
       const data = await studentService.getAllStudents();
       // In the new schema, data already comes with joined summary fields
-      const formattedData = data.map(s => ({
-        ...s,
-        // Backend returns JSON but we ensure it's an array for display
-        skills: typeof s.skills === 'string' ? JSON.parse(s.skills) : (s.skills || []),
-        aggregate_percentage: Number(s.aggregate_percentage || 0)
-      }));
+      const formattedData = data.map(s => {
+        let parsedSkills = [];
+        try {
+          if (typeof s.skills === 'string') {
+            if (s.skills.startsWith('[') || s.skills.startsWith('{')) {
+              parsedSkills = JSON.parse(s.skills);
+            } else if (s.skills.trim() !== '') {
+              parsedSkills = s.skills.split(',').map(skill => skill.trim());
+            }
+          } else if (Array.isArray(s.skills)) {
+            parsedSkills = s.skills;
+          }
+        } catch (e) {
+          console.error("Error parsing skills for student:", s.enrollment_no, e);
+          parsedSkills = [];
+        }
+
+        return {
+          ...s,
+          skills: parsedSkills,
+          aggregate_percentage: Number(s.aggregate_percentage || 0),
+          percentage_10th: Number(s.percentage_10th || 0),
+          percentage_12th: Number(s.percentage_12th || 0),
+          percentage_grad: Number(s.percentage_grad || 0),
+          current_cgpa: Number(s.current_cgpa || 0)
+        };
+      });
       set({ students: formattedData, filteredStudents: formattedData, isLoading: false });
     } catch (error) {
       const message = error.response?.data?.error || 'Failed to fetch students';
@@ -54,8 +77,10 @@ const useStudentStore = create((set, get) => ({
   resetFilters: () => {
     const initialFilters = {
       course: 'all',
-      ciaThreshold: 0,
-      mockTestThreshold: 0,
+      min10th: 0,
+      min12th: 0,
+      minGrad: 0,
+      minCGPA: 0,
       company: 'all',
     };
     set({ 
@@ -70,11 +95,22 @@ const useStudentStore = create((set, get) => ({
     let filtered = [...students];
 
     if (filters.course !== 'all') {
-      filtered = filtered.filter(s => s.branch === filters.course);
+      filtered = filtered.filter(s => s.course === filters.course);
     }
     
-    // In new schema, thresholds might need to join other data, 
-    // but for the dashboard summary, we keep it simple for now or skip if not in main view
+    // Academic threshold filters
+    if (filters.min10th > 0) {
+      filtered = filtered.filter(s => s.percentage_10th >= filters.min10th);
+    }
+    if (filters.min12th > 0) {
+      filtered = filtered.filter(s => s.percentage_12th >= filters.min12th);
+    }
+    if (filters.minGrad > 0) {
+      filtered = filtered.filter(s => s.percentage_grad >= filters.minGrad);
+    }
+    if (filters.minCGPA > 0) {
+      filtered = filtered.filter(s => s.current_cgpa >= filters.minCGPA);
+    }
     
     if (filters.company !== 'all') {
       filtered = filtered.filter(s => s.placed_company === filters.company);

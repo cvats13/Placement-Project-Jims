@@ -26,7 +26,8 @@ export function LoginPage() {
       toast.success('Welcome back!');
     } catch (err) {
       console.error('Login error:', err);
-      toast.error(err.message);
+      // Backend error is passed through useAuthStore
+      toast.error(err.message || "Invalid credentials. Please try again.");
     }
   };
 
@@ -109,6 +110,7 @@ export function LoginPage() {
               <div className="flex items-center justify-between mt-2">
                 <button
                   type="button"
+                  onClick={() => toast.info("Password reset feature is coming soon. Please contact the administrator.")}
                   className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline font-medium"
                 >
                   Forgot Password?
