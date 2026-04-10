@@ -23,14 +23,14 @@ const generateMockAcademicData = (student) => {
 
   for (let sem = 1; sem <= Math.min(student.semester, 6); sem++) {
     const semSubjects = subjects[sem] || subjects[3];
-    
+
     // Generate CIA marks for each subject
     const ciaMarks = semSubjects.map(subject => {
       const cia1 = Math.floor(Math.random() * 5) + 15; // 15-20
       const cia2 = Math.floor(Math.random() * 5) + 15;
       const cia3 = Math.floor(Math.random() * 5) + 15;
       const cia4 = Math.random() > 0.5 ? Math.floor(Math.random() * 5) + 15 : undefined;
-      
+
       const scores = [cia1, cia2, cia3];
       if (cia4) scores.push(cia4);
       const average = scores.reduce((a, b) => a + b, 0) / scores.length;
@@ -48,12 +48,12 @@ const generateMockAcademicData = (student) => {
     // Generate mock tests
     const numTests = Math.floor(Math.random() * 3) + 3; // 3-5 tests per semester
     const mockTests = [];
-    
+
     for (let t = 1; t <= numTests; t++) {
       const testType = testTypes[Math.floor(Math.random() * testTypes.length)];
       const score = Math.floor(Math.random() * 30) + 65; // 65-95
       const percentile = Math.floor(Math.random() * 35) + 60; // 60-95
-      
+
       const month = (sem - 1) * 2 + Math.floor(Math.random() * 2) + 1;
       const year = 2024;
       const day = Math.floor(Math.random() * 28) + 1;
@@ -98,7 +98,7 @@ export function StudentProfile({ student, onBack }) {
         const response = await fetch(`http://localhost:3000/api/students/${student.student_id}/academic-history`);
         if (!response.ok) throw new Error('Failed to fetch full student profile');
         const data = await response.json();
-        
+
         setProfileData(data.details);
 
         // Map academic history for charts and accordion
@@ -116,8 +116,8 @@ export function StudentProfile({ student, onBack }) {
             percentile: test.percentile,
             date: test.test_date
           })),
-          avgCIA: sem.ciaMarks?.length > 0 
-            ? sem.ciaMarks.reduce((sum, c) => sum + parseFloat(c.average || 0), 0) / sem.ciaMarks.length 
+          avgCIA: sem.ciaMarks?.length > 0
+            ? sem.ciaMarks.reduce((sum, c) => sum + parseFloat(c.average || 0), 0) / sem.ciaMarks.length
             : 0,
           avgMockTest: sem.mockTests?.length > 0
             ? sem.mockTests.reduce((sum, t) => sum + (t.score || 0), 0) / sem.mockTests.length
@@ -147,20 +147,20 @@ export function StudentProfile({ student, onBack }) {
   }
 
   const totalMockTests = academicData.reduce((sum, sem) => sum + (sem.mockTests?.length || 0), 0);
-  const avgMockScore = totalMockTests > 0 
-    ? academicData.reduce((sum, sem) => 
-        sum + sem.mockTests.reduce((s, t) => s + (t.score || 0), 0), 0
-      ) / totalMockTests 
+  const avgMockScore = totalMockTests > 0
+    ? academicData.reduce((sum, sem) =>
+      sum + sem.mockTests.reduce((s, t) => s + (t.score || 0), 0), 0
+    ) / totalMockTests
     : 0;
-  
+
   // Get Graduation agg from academics table
   const graduationLevel = profileData?.academics?.find(a => a.level === 'Graduation');
   const aggregatePercentage = graduationLevel?.percentage || 0;
 
   // Calculate placement readiness score
   const placementReadiness = Math.min(100, Math.round(
-    (aggregatePercentage / 10) * 10 + 
-    (avgMockScore * 0.3) + 
+    (aggregatePercentage / 10) * 10 +
+    (avgMockScore * 0.3) +
     (academicData.length > 0 ? 10 : 0)
   ));
 
@@ -333,39 +333,39 @@ export function StudentProfile({ student, onBack }) {
       {/* Experience & Placement Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Work Experience & Internships</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {profileData?.experiences?.has_experience ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-700 font-medium">{profileData.experiences.description}</p>
-                  <div className="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm">
-                    <strong>Details:</strong> {profileData.experiences.internship_details}
-                  </div>
+          <CardHeader>
+            <CardTitle className="text-lg">Work Experience & Internships</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {profileData?.experiences?.has_experience ? (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-700 font-medium">{profileData.experiences.description}</p>
+                <div className="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm">
+                  <strong>Details:</strong> {profileData.experiences.internship_details}
                 </div>
-              ) : (
-                <p className="text-sm text-gray-500 italic">No professional experience recorded.</p>
-              )}
-            </CardContent>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 italic">No professional experience recorded.</p>
+            )}
+          </CardContent>
         </Card>
 
         <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Current Placement Status</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center gap-6">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${profileData?.placement?.status === 'Placed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
-                {profileData?.placement?.status === 'Placed' ? '✓' : '?'}
-              </div>
-              <div>
-                <Badge variant={profileData?.placement?.status === 'Placed' ? 'success' : 'outline'}>
-                  {profileData?.placement?.status || 'Active'}
-                </Badge>
-                <h4 className="font-bold text-xl mt-1 text-gray-900">{profileData?.placement?.company || 'N/A'}</h4>
-                <p className="text-sm text-gray-500 mt-1">{profileData?.placement?.details}</p>
-              </div>
-            </CardContent>
+          <CardHeader>
+            <CardTitle className="text-lg">Current Placement Status</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-6">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold ${profileData?.placement?.status === 'Placed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+              {profileData?.placement?.status === 'Placed' ? '✓' : '?'}
+            </div>
+            <div>
+              <Badge variant={profileData?.placement?.status === 'Placed' ? 'success' : 'outline'}>
+                {profileData?.placement?.status || 'Active'}
+              </Badge>
+              <h4 className="font-bold text-xl mt-1 text-gray-900">{profileData?.placement?.company || 'N/A'}</h4>
+              <p className="text-sm text-gray-500 mt-1">{profileData?.placement?.details}</p>
+            </div>
+          </CardContent>
         </Card>
       </div>
 

@@ -21,7 +21,7 @@ export function StudentFilters({
   onSearchTokensChange,
   onBulkPasteClick,
 }) {
-  const showPasteNameSearch = userRole === 'placement_officer' && typeof onSearchTokensChange === 'function';
+  const showPasteNameSearch = typeof onSearchTokensChange === 'function';
   const [inputValue, setInputValue] = useState('');
   const debouncedInput = useDebounce(inputValue, 300);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -128,7 +128,7 @@ export function StudentFilters({
                     ref={inputRef}
                     type="text"
                     placeholder={searchTokens.length === 0 
-                      ? "Search students (paste multiple names separated by space, comma, or line break)" 
+                      ? "Search students" 
                       : "Add more names..."}
                     value={inputValue}
                     onChange={handleInputChange}
@@ -147,9 +147,7 @@ export function StudentFilters({
                 />
               </div>
 
-              <p className="text-xs text-gray-500 mt-1.5 ml-1">
-                Example: Rahul Priya Aman or paste multiple names at once
-              </p>
+
             </div>
 
             {typeof onBulkPasteClick === 'function' && (
@@ -254,7 +252,7 @@ export function StudentFilters({
         {/* Current CGPA Threshold */}
         <div className="space-y-3">
           <Label className="text-sm font-medium flex justify-between">
-            <span>Min CGPA</span>
+            <span>Min CGPA (Cumulative Grade Point Average)</span>
             <span className="text-indigo-600">{filters.minCGPA}</span>
           </Label>
           <Slider

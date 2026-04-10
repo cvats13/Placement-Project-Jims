@@ -120,15 +120,6 @@ export function MainDashboard() {
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        {userRole !== 'placement_officer' && (
-          <EnhancedTopBar 
-            searchTokens={searchTokens}
-            onSearchTokensChange={setSearchTokens}
-            onBulkPasteClick={() => setIsBulkPasteModalOpen(true)}
-            userRole={userRole}
-            allStudents={students}
-          />
-        )}
         
         <main className="flex-1 overflow-y-auto p-6">
           {isLoading && students.length === 0 ? (

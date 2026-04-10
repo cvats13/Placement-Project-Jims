@@ -65,9 +65,7 @@ export function UserApproval() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">User Approvals</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Review and approve new account registrations
-          </p>
+
         </div>
         <div className="flex items-center gap-2 bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
           <Clock className="w-4 h-4 text-indigo-600" />
@@ -106,13 +104,12 @@ export function UserApproval() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge 
-                      variant="outline" 
-                      className={`capitalize ${
-                        user.role === 'admin' ? 'border-red-200 text-red-700 bg-red-50' : 
-                        user.role === 'placement_officer' ? 'border-amber-200 text-amber-700 bg-amber-50' : 
-                        'border-blue-200 text-blue-700 bg-blue-50'
-                      }`}
+                    <Badge
+                      variant="outline"
+                      className={`capitalize ${user.role === 'admin' ? 'border-red-200 text-red-700 bg-red-50' :
+                        user.role === 'placement_officer' ? 'border-amber-200 text-amber-700 bg-amber-50' :
+                          'border-blue-200 text-blue-700 bg-blue-50'
+                        }`}
                     >
                       {user.role.replace('_', ' ')}
                     </Badge>
@@ -152,12 +149,7 @@ export function UserApproval() {
         )}
       </div>
 
-      <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg flex gap-3">
-        <Shield className="w-5 h-5 text-amber-600 flex-shrink-0" />
-        <p className="text-sm text-amber-800">
-          <strong>Note:</strong> Approving a user allows them to log in immediately with the role they requested during registration. Please verify their identity before approval.
-        </p>
-      </div>
+
     </div>
   );
 }

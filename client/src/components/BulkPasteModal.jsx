@@ -43,14 +43,7 @@ export function BulkPasteModal({ isOpen, onClose, onApply }) {
             className="font-mono text-sm"
           />
           
-          <div className="mt-3 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-            <p className="font-medium mb-1">Supported formats:</p>
-            <ul className="space-y-1 ml-4">
-              <li>• One name per line</li>
-              <li>• Comma-separated names</li>
-              <li>• Mix of full and partial names</li>
-            </ul>
-          </div>
+
         </div>
 
         <DialogFooter>

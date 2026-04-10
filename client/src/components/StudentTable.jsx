@@ -33,11 +33,9 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
             <TableHead>10th %</TableHead>
             <TableHead>12th %</TableHead>
             <TableHead>Grad %</TableHead>
-            <TableHead>CGPA</TableHead>
+            <TableHead>CGPA (Cumulative Grade Point Average)</TableHead>
             <TableHead>Company</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,15 +75,6 @@ export function StudentTable({ students, selectedStudents, onSelectStudent, onSe
                 <Badge variant={student.placement_status === 'Placed' ? 'success' : 'secondary'}>
                   {student.placement_status || 'In-Process'}
                 </Badge>
-              </TableCell>
-              <TableCell onClick={(e) => e.stopPropagation()}>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => onViewProfile(student)}
-                >
-                  View Profile
-                </Button>
               </TableCell>
             </TableRow>
           ))}
