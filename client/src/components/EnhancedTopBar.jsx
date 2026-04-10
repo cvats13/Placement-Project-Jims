@@ -120,7 +120,7 @@ export function EnhancedTopBar({
                     ref={inputRef}
                     type="text"
                     placeholder={searchTokens.length === 0 
-                      ? "Search students (paste multiple names separated by space, comma, or line break)" 
+                      ? "Search students" 
                       : "Add more names..."}
                     value={inputValue}
                     onChange={handleInputChange}
@@ -139,10 +139,6 @@ export function EnhancedTopBar({
                   isVisible={showSuggestions}
                 />
               </div>
-
-              <p className="text-xs text-gray-500 mt-1.5 ml-1">
-                Example: Rahul Priya Aman or paste multiple names at once
-              </p>
             </div>
 
             {/* Bulk Paste Button */}

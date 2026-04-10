@@ -22,7 +22,7 @@ export function EmailModal({ isOpen, onClose, selectedStudents = [] }) {
   useEffect(() => {
     if (isOpen && selectedStudents.length > 0) {
       const studentDetails = selectedStudents.map((s, index) => (
-        `${index + 1}. ${s.name}\n   Enrollment: ${s.enrollment_no}\n   Email: ${s.student_email || s.primary_email}\n   Course: ${s.course}\n   CGPA: ${s.current_cgpa || 'N/A'}\n`
+        `${index + 1}. ${s.name}\n   Enrollment: ${s.enrollment_no}\n   Email: ${s.student_email || s.primary_email}\n   Course: ${s.course}\n   CGPA (Cumulative Grade Point Average): ${s.current_cgpa || 'N/A'}\n`
       )).join('\n');
 
       setFormData(prev => ({
