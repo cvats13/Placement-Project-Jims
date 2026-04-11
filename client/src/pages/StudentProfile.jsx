@@ -7,83 +7,6 @@ import { PlacementReadinessCard } from '../components/PlacementReadinessCard';
 import { SemesterAccordion } from '../components/SemesterAccordion';
 import { PerformanceCharts } from '../components/PerformanceCharts';
 
-// Generate comprehensive mock academic data
-const generateMockAcademicData = (student) => {
-  const subjects = {
-    1: ['Programming Fundamentals', 'Mathematics I', 'Digital Logic', 'English Communication', 'Physics'],
-    2: ['Data Structures', 'Mathematics II', 'Computer Organization', 'Database Management', 'Operating Systems'],
-    3: ['Algorithms', 'Web Development', 'Software Engineering', 'Computer Networks', 'System Programming'],
-    4: ['Machine Learning', 'Cloud Computing', 'Mobile App Dev', 'Information Security', 'Design Patterns'],
-    5: ['AI & Deep Learning', 'Big Data Analytics', 'DevOps', 'Blockchain', 'IoT'],
-    6: ['Advanced Topics', 'Capstone Project', 'Research Methods', 'Ethics in Tech', 'Industry Internship'],
-  };
-
-  const testTypes = ['Aptitude', 'Coding', 'Technical'];
-  const semesters = [];
-
-  for (let sem = 1; sem <= Math.min(student.semester, 6); sem++) {
-    const semSubjects = subjects[sem] || subjects[3];
-
-    // Generate CIA marks for each subject
-    const ciaMarks = semSubjects.map(subject => {
-      const cia1 = Math.floor(Math.random() * 5) + 15; // 15-20
-      const cia2 = Math.floor(Math.random() * 5) + 15;
-      const cia3 = Math.floor(Math.random() * 5) + 15;
-      const cia4 = Math.random() > 0.5 ? Math.floor(Math.random() * 5) + 15 : undefined;
-
-      const scores = [cia1, cia2, cia3];
-      if (cia4) scores.push(cia4);
-      const average = scores.reduce((a, b) => a + b, 0) / scores.length;
-
-      return {
-        subject,
-        cia1,
-        cia2,
-        cia3,
-        cia4,
-        average,
-      };
-    });
-
-    // Generate mock tests
-    const numTests = Math.floor(Math.random() * 3) + 3; // 3-5 tests per semester
-    const mockTests = [];
-
-    for (let t = 1; t <= numTests; t++) {
-      const testType = testTypes[Math.floor(Math.random() * testTypes.length)];
-      const score = Math.floor(Math.random() * 30) + 65; // 65-95
-      const percentile = Math.floor(Math.random() * 35) + 60; // 60-95
-
-      const month = (sem - 1) * 2 + Math.floor(Math.random() * 2) + 1;
-      const year = 2024;
-      const day = Math.floor(Math.random() * 28) + 1;
-
-      mockTests.push({
-        testName: `Mock Test ${t}`,
-        testType,
-        score,
-        percentile,
-        date: `${day}/${month}/${year}`,
-      });
-    }
-
-    const avgCIA = ciaMarks.reduce((sum, mark) => sum + mark.average, 0) / ciaMarks.length;
-    const avgMockTest = mockTests.reduce((sum, test) => sum + test.score, 0) / mockTests.length;
-    const sgpa = 7 + Math.random() * 2.5; // 7.0-9.5
-
-    semesters.push({
-      semesterNumber: sem,
-      sgpa: parseFloat(sgpa.toFixed(2)),
-      avgCIA: parseFloat(avgCIA.toFixed(1)),
-      avgMockTest: parseFloat(avgMockTest.toFixed(1)),
-      ciaMarks,
-      mockTests,
-    });
-  }
-
-  return semesters;
-};
-
 export function StudentProfile({ student, onBack }) {
   const [profileData, setProfileData] = useState(null);
   const [academicData, setAcademicData] = useState([]);
@@ -101,27 +24,24 @@ export function StudentProfile({ student, onBack }) {
 
         setProfileData(data.details);
 
-        // Map academic history for charts and accordion
+        // Map academic history (CIA / mock rows match CSV import: subject + marks, test_name + marks)
         const formattedHistory = data.academicHistory.map(sem => ({
           semesterNumber: sem.semester_number,
           sgpa: parseFloat(sem.sgpa || 0),
           ciaMarks: (sem.ciaMarks || []).map(cia => ({
-            ...cia,
-            average: parseFloat(cia.average || 0)
+            subject: cia.subject,
+            marks: parseFloat(cia.marks ?? 0),
           })),
           mockTests: (sem.mockTests || []).map(test => ({
             testName: test.test_name,
-            testType: test.test_type,
-            score: test.score,
-            percentile: test.percentile,
-            date: test.test_date
+            score: parseFloat(test.marks ?? 0),
           })),
           avgCIA: sem.ciaMarks?.length > 0
-            ? sem.ciaMarks.reduce((sum, c) => sum + parseFloat(c.average || 0), 0) / sem.ciaMarks.length
+            ? sem.ciaMarks.reduce((sum, c) => sum + parseFloat(c.marks ?? 0), 0) / sem.ciaMarks.length
             : 0,
           avgMockTest: sem.mockTests?.length > 0
-            ? sem.mockTests.reduce((sum, t) => sum + (t.score || 0), 0) / sem.mockTests.length
-            : 0
+            ? sem.mockTests.reduce((sum, t) => sum + parseFloat(t.marks ?? 0), 0) / sem.mockTests.length
+            : 0,
         }));
 
         setAcademicData(formattedHistory);
@@ -279,12 +199,16 @@ export function StudentProfile({ student, onBack }) {
                   </div>
                 ))}
               </div>
-              {profileData?.gaps?.has_gap && (
+              {profileData?.gaps ? (
                 <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex gap-3">
-                  <div className="text-amber-600 font-bold text-sm">GAP YEAR:</div>
-                  <p className="text-sm text-amber-800">{profileData.gaps.reason}</p>
+                  <div className="text-amber-600 font-bold text-sm shrink-0">Gap year</div>
+                  <p className="text-sm text-amber-800">
+                    {profileData.gaps.reason || (
+                      <span className="text-amber-700/80 italic">Exists , Reason Not Found</span>
+                    )}
+                  </p>
                 </div>
-              )}
+              ) : null}
             </CardContent>
           </Card>
         </div>

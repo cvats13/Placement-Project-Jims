@@ -1,5 +1,11 @@
 const db = require('../config/db');
 const emailService = require('../services/emailService');
+const {
+    normalizeStudentListRow,
+    normalizePlacementRow,
+    placementFromSpreadsheet,
+} = require('../utils/placementNormalize');
+const { normalizeGapsForProfile } = require('../utils/gapNormalize');
 
 // @desc Get all students (with summary info for main list)
 // @route GET /api/students
@@ -35,7 +41,7 @@ exports.getAllStudents = async (req, res) => {
         }
 
         const [rows] = await db.query(sql, params);
-        res.json(rows);
+        res.json(rows.map(normalizeStudentListRow));
     } catch (err) {
         console.error('Error fetching all students:', err);
         res.status(500).json({ error: 'Server error' });
@@ -86,15 +92,16 @@ exports.getStudentAcademicHistory = async (req, res) => {
             };
         }));
 
+        const placementRaw = placements[0] || null;
         res.json({
             student,
             details: {
                 academics,
                 family: family[0] || null,
                 addresses,
-                gaps: gaps[0] || null,
+                gaps: normalizeGapsForProfile(gaps[0] || null),
                 experiences: experiences[0] || null,
-                placement: placements[0] || null
+                placement: placementRaw ? normalizePlacementRow(placementRaw) : null,
             },
             academicHistory
         });
@@ -253,15 +260,21 @@ exports.bulkUploadStudents = async (req, res) => {
                 }
 
                 // 8. Placements
-                if (data['Placed Company Name'] || data['Any Previous campus selection/ offer in Graduation.']) {
+                if (data['Placed Company Name'] || data['Current Placement Status'] || data['Any Previous campus selection/ offer in Graduation.']) {
+                    const { company, status } = placementFromSpreadsheet(
+                        data['Placed Company Name'],
+                        data['Current Placement Status']
+                    );
                     await connection.query(`
                         INSERT INTO placements (student_id, campus_offer, company, status)
                         VALUES (?, ?, ?, ?)
                         ON DUPLICATE KEY UPDATE campus_offer=VALUES(campus_offer), 
                         company=VALUES(company), status=VALUES(status)
                     `, [
-                        studentId, data['Any Previous campus selection/ offer in Graduation.'], 
-                        data['Placed Company Name'], data['Current Placement Status']
+                        studentId,
+                        data['Any Previous campus selection/ offer in Graduation.'] || null,
+                        company,
+                        status,
                     ]);
                 }
 

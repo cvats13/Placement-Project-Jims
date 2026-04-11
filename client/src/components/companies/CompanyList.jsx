@@ -123,7 +123,7 @@ export function CompanyList() {
               <Download className="w-4 h-4" />
               Export
             </Button>
-            <Button 
+            {/* <Button 
                onClick={() => setIsMailModalOpen(true)}
                disabled={selectedCompanies.length === 0}
                className="bg-indigo-600 hover:bg-indigo-700 h-11 px-6 rounded-xl shadow-md gap-2 flex-1 md:flex-none"
@@ -135,7 +135,7 @@ export function CompanyList() {
                   {selectedCompanies.length}
                 </span>
               )}
-            </Button>
+            </Button> */}
           </div>
         </CardContent>
       </Card>

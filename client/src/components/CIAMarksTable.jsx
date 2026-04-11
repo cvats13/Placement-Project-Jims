@@ -9,58 +9,29 @@ export function CIAMarksTable({ ciaMarks }) {
     );
   }
 
-  const hasCIA4 = ciaMarks.some(mark => mark.cia4 !== undefined && mark.cia4 !== null);
-
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">
             <TableHead className="font-semibold">Subject</TableHead>
-            <TableHead className="text-center font-semibold">CIE 1</TableHead>
-            <TableHead className="text-center font-semibold">CIE 2</TableHead>
-            <TableHead className="text-center font-semibold">CIE 3</TableHead>
-            {hasCIA4 && <TableHead className="text-center font-semibold">CIE 4</TableHead>}
-            <TableHead className="text-center font-semibold">Average</TableHead>
+            <TableHead className="text-center font-semibold">Marks (out of 20)</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ciaMarks.map((mark, index) => (
-            <TableRow key={index} className="hover:bg-indigo-50/50 transition-colors">
-              <TableCell className="font-medium">{mark.subject}</TableCell>
-              <TableCell className="text-center">
-                <span className={mark.cia1 >= 18 ? 'text-green-600 font-medium' : ''}>
-                  {mark.cia1}
-                </span>
-              </TableCell>
-              <TableCell className="text-center">
-                <span className={mark.cia2 >= 18 ? 'text-green-600 font-medium' : ''}>
-                  {mark.cia2}
-                </span>
-              </TableCell>
-              <TableCell className="text-center">
-                <span className={mark.cia3 >= 18 ? 'text-green-600 font-medium' : ''}>
-                  {mark.cia3}
-                </span>
-              </TableCell>
-              {hasCIA4 && (
+          {ciaMarks.map((mark, index) => {
+            const m = Number(mark.marks ?? 0);
+            return (
+              <TableRow key={index} className="hover:bg-indigo-50/50 transition-colors">
+                <TableCell className="font-medium">{mark.subject}</TableCell>
                 <TableCell className="text-center">
-                  {mark.cia4 ? (
-                    <span className={mark.cia4 >= 18 ? 'text-green-600 font-medium' : ''}>
-                      {mark.cia4}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
+                  <span className={m >= 18 ? 'text-green-600 font-semibold' : 'font-medium text-gray-900'}>
+                    {Number.isFinite(m) ? m : '—'}
+                  </span>
                 </TableCell>
-              )}
-              <TableCell className="text-center">
-                <span className={`font-semibold ${mark.average >= 18 ? 'text-green-600' : 'text-indigo-600'}`}>
-                  {mark.average.toFixed(1)}
-                </span>
-              </TableCell>
-            </TableRow>
-          ))}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

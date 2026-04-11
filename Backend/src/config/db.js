@@ -52,7 +52,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 3. Academics (Level-based)
+        // 3. Academics (Level-based: 10th, 12th, Graduation)
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS academics (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,7 +67,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 4. Academic Semesters
+        // 4. Academic Semesters (Sem 1-6 SGPA)
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS academic_semesters (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -79,7 +79,31 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 5. Family Details
+        // 5. CIA Marks (linked to academic_semesters)
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS cia_marks (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                semester_id INT NOT NULL,
+                subject VARCHAR(100) NOT NULL,
+                marks DECIMAL(5,2),
+                FOREIGN KEY (semester_id) REFERENCES academic_semesters(id) ON DELETE CASCADE,
+                UNIQUE KEY uq_cia (semester_id, subject)
+            )
+        `);
+
+        // 6. Mock Tests (linked to academic_semesters)
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS mock_tests (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                semester_id INT NOT NULL,
+                test_name VARCHAR(100) NOT NULL,
+                marks DECIMAL(5,2),
+                FOREIGN KEY (semester_id) REFERENCES academic_semesters(id) ON DELETE CASCADE,
+                UNIQUE KEY uq_mock (semester_id, test_name)
+            )
+        `);
+
+        // 7. Family Details
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS family (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -95,7 +119,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 6. Addresses
+        // 8. Addresses
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS addresses (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -107,7 +131,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 7. Gaps
+        // 9. Gaps
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS gaps (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -118,7 +142,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 8. Experiences
+        // 10. Experiences
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS experiences (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -130,7 +154,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 9. Placements
+        // 11. Placements
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS placements (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -142,36 +166,18 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 10. CIA Marks
-        await promisePool.query(`
-            CREATE TABLE IF NOT EXISTS cia_marks (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                semester_id INT NOT NULL,
-                subject VARCHAR(100) NOT NULL,
-                marks DECIMAL(5,2),
-                FOREIGN KEY (semester_id) REFERENCES academic_semesters(id) ON DELETE CASCADE
-            )
-        `);
-
-        // 11. Mock Tests
-        await promisePool.query(`
-            CREATE TABLE IF NOT EXISTS mock_tests (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                semester_id INT NOT NULL,
-                test_name VARCHAR(100) NOT NULL,
-                marks DECIMAL(5,2),
-                FOREIGN KEY (semester_id) REFERENCES academic_semesters(id) ON DELETE CASCADE
-            )
-        `);
-
-        // 12. Companies
+        // 12. Companies (extended with job_role, package_lpa, official_email)
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS companies (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 course VARCHAR(100),
+                job_role VARCHAR(255),
+                package_lpa DECIMAL(5,2),
                 status ENUM('Upcoming', 'Ongoing', 'Completed') DEFAULT 'Upcoming',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                official_email VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY uq_company_name (name)
             )
         `);
 
@@ -189,37 +195,12 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 14. Add is_approved to users if it doesn't exist
-        await promisePool.query(`
-            IF NOT EXISTS (
-                SELECT * FROM information_schema.COLUMNS 
-                WHERE TABLE_SCHEMA = DATABASE() 
-                AND TABLE_NAME = 'users' 
-                AND COLUMN_NAME = 'is_approved'
-            ) THEN
-                ALTER TABLE users ADD COLUMN is_approved TINYINT(1) DEFAULT 0;
-            END IF;
-        `).catch(err => {
-            // MySQL 8.0 doesn't support IF NOT EXISTS in ALTER TABLE directly without a procedure
-            // So we try a simpler approach: ignore error if column already exists
-            if (err.code !== 'ER_DUP_FIELDNAME') {
-                return promisePool.query(`ALTER TABLE users ADD COLUMN is_approved TINYINT(1) DEFAULT 0`).catch(e => {
-                    if (e.code !== 'ER_DUP_FIELDNAME') throw e;
-                });
-            }
-        });
-
-        // 15. Ensure role ENUM is correct in users table
-        await promisePool.query(`
-            ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'placement_officer', 'user') NOT NULL DEFAULT 'user'
-        `);
-
-        console.log("✅ Database tables initialized and updated successfully.");
-        // 14. Import Logs (Batch Tracking)
+        // 14. Import Logs (tracks CSV upload batches across all modules)
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS import_logs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 file_name VARCHAR(255) NOT NULL,
+                module_type VARCHAR(50) DEFAULT 'students',
                 uploaded_by INT,
                 total_rows INT DEFAULT 0,
                 success_rows INT DEFAULT 0,
@@ -230,7 +211,7 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 15. Import Staging (Pre-validation Storage)
+        // 15. Import Staging (pre-validation raw row storage per batch)
         await promisePool.query(`
             CREATE TABLE IF NOT EXISTS import_staging (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -245,10 +226,10 @@ const initializeDatabase = async () => {
             )
         `);
 
-        console.log("✅ Database tables initialized successfully.");
+        console.log("✅ All database tables initialized successfully.");
     } catch (err) {
         console.error("❌ Error during database initialization:", err);
-        throw err; // Propagate error so server knows initialization failed
+        throw err;
     }
 };
 
@@ -262,7 +243,7 @@ pool.getConnection((err, connection) => {
     }
 });
 
-// Attach initializeDatabase to the promisePool so it can be awaited in server.js
+// Attach initializeDatabase to the pool so it can be awaited in server.js
 promisePool.initializeDatabase = initializeDatabase;
 
 module.exports = promisePool;

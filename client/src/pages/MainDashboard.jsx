@@ -16,6 +16,9 @@ import { BulkSearchIndicator } from '../components/BulkSearchIndicator';
 import { FilterResultIndicator } from '../components/ui/FilterResultIndicator';
 import { EmptySearchState } from '../components/ui/EmptySearchState';
 import { Companies } from '../pages/Companies';
+import { CompanyImportPanel } from '../pages/CompanyImportPanel';
+import { CiaMarksImportPanel } from '../pages/CiaMarksImportPanel';
+import { MockTestsImportPanel } from '../pages/MockTestsImportPanel';
 import useStudentStore from '../store/useStudentStore';
 import useAuthStore from '../store/useAuthStore';
 
@@ -191,6 +194,12 @@ export function MainDashboard() {
             <UserApproval />
           ) : activeView === 'companies' ? (
             <Companies />
+          ) : activeView === 'company-import' ? (
+            <CompanyImportPanel />
+          ) : activeView === 'cia-import' ? (
+            <CiaMarksImportPanel />
+          ) : activeView === 'mock-import' ? (
+            <MockTestsImportPanel />
           ) : (
             <div className="text-center py-12">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -202,6 +211,7 @@ export function MainDashboard() {
         </main>
       </div>
 
+{/* 
       <SelectionActionBar
         selectedCount={selectedStudents.length}
         onSendToCompany={() => setIsEmailModalOpen(true)}
@@ -218,7 +228,8 @@ export function MainDashboard() {
         isOpen={isNotifyModalOpen}
         onClose={() => setIsNotifyModalOpen(false)}
         selectedStudents={students.filter(s => selectedStudents.includes(s.student_id))}
-      />
+      /> 
+      */}
 
       <BulkPasteModal
         isOpen={isBulkPasteModalOpen}

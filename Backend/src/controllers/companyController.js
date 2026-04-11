@@ -6,7 +6,7 @@ const pool = require('../config/db');
 const getCompanies = async (req, res) => {
     try {
         const { course, status } = req.query;
-        let sql = 'SELECT * FROM companies WHERE 1=1';
+        let sql = 'SELECT id, name, course, job_role, package_lpa, status, official_email, created_at FROM companies WHERE 1=1';
         let params = [];
 
         if (course && course !== 'all') {
@@ -117,9 +117,36 @@ const sendMassMail = async (req, res) => {
     }
 };
 
+// @desc Manually create/add a company
+// @route POST /api/companies
+// @access Private (Admin)
+const createCompany = async (req, res) => {
+    try {
+        const { name, course, job_role, package_lpa, status, official_email } = req.body;
+        if (!name || !course) return res.status(400).json({ message: 'Company name and course are required' });
+
+        await pool.query(`
+            INSERT INTO companies (name, course, job_role, package_lpa, status, official_email)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                course = VALUES(course),
+                job_role = VALUES(job_role),
+                package_lpa = VALUES(package_lpa),
+                status = VALUES(status),
+                official_email = VALUES(official_email)
+        `, [name, course, job_role || null, package_lpa || null, status || 'Upcoming', official_email || null]);
+
+        res.status(201).json({ message: 'Company created successfully' });
+    } catch (error) {
+        console.error('Error creating company:', error);
+        res.status(500).json({ message: 'Error creating company' });
+    }
+};
+
 module.exports = {
     getCompanies,
     getTrackingData,
     getNonApplicants,
-    sendMassMail
+    sendMassMail,
+    createCompany
 };
