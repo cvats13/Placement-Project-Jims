@@ -1,5 +1,6 @@
 const xlsx = require('xlsx');
 const db = require('../config/db');
+const { placementFromSpreadsheet } = require('../utils/placementNormalize');
 
 // Safe JSON parsing helper to handle MySQL driver double-parsing or weird stringification
 const safeParseJSON = (data) => {
@@ -38,9 +39,17 @@ class ImportService {
         });
 
         // 1. Create Import Log entry
+        // Validate that the userId actually exists in users table to avoid FK constraint failure
+        // (can happen if DB was reset but session tokens still carry old user IDs)
+        let safeUserId = null;
+        if (userId) {
+            const [userCheck] = await db.query('SELECT id FROM users WHERE id = ?', [userId]);
+            safeUserId = userCheck.length > 0 ? userId : null;
+        }
+
         const [logResult] = await db.query(
             'INSERT INTO import_logs (file_name, uploaded_by, total_rows, status) VALUES (?, ?, ?, ?)',
-            [fileName, userId, rows.length, 'pending']
+            [fileName, safeUserId, rows.length, 'pending']
         );
         const batchId = logResult.insertId;
 
@@ -287,13 +296,20 @@ class ImportService {
     }
 
     async upsertPlacements(connection, studentId, data) {
-        if (data['Current Placement Status']) {
+        if (data['Placed Company Name'] || data['Current Placement Status'] || data['Any Previous campus selection/ offer in Graduation.']) {
+            const { company, status } = placementFromSpreadsheet(
+                data['Placed Company Name'],
+                data['Current Placement Status']
+            );
             await connection.query(`
                 INSERT INTO placements (student_id, campus_offer, company, status)
                 VALUES (?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE campus_offer=VALUES(campus_offer), company=VALUES(company), status=VALUES(status)
             `, [
-                studentId, data['Any Previous campus selection/ offer in Graduation.'], data['Placed Company Name'], data['Current Placement Status']
+                studentId,
+                data['Any Previous campus selection/ offer in Graduation.'] || null,
+                company,
+                status,
             ]);
         }
     }

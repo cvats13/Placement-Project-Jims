@@ -114,8 +114,8 @@ export function AdminUploadPanel() {
       {step === 'upload' && (
         <Card className="border-2 border-indigo-100 shadow-xl overflow-hidden">
           <CardHeader className="bg-indigo-50 border-b border-indigo-100 pb-8">
-            <CardTitle className="text-2xl text-indigo-900">Admin Data Import</CardTitle>
-            <p className="text-indigo-700">Upload your master spreadsheet to sync student records across all database tables.</p>
+            <CardTitle className="text-2xl text-indigo-900">Student Data Import</CardTitle>
+            {/* <p className="text-indigo-700">Upload your master spreadsheet to sync student records across all database tables.</p> */}
           </CardHeader>
           <CardContent className="p-8 space-y-8">
             <div className="border-2 border-dashed border-indigo-200 rounded-2xl bg-white p-16 text-center hover:border-indigo-400 transition-all cursor-pointer group">

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Building2, CheckSquare, Mail, LogOut, User, UserCheck } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, CheckSquare, Mail, LogOut, User, UserCheck, Upload, FileText, ClipboardList } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from './ui/utils';
 
@@ -7,10 +7,13 @@ export function Sidebar({ activeView, onNavigate, onLogout, userRole }) {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users },
     { id: 'companies', label: 'Companies', icon: Building2 },
-    { id: 'shortlisted', label: 'Shortlisted', icon: CheckSquare },
-    { id: 'email', label: 'Email Notifications', icon: Mail },
+    // { id: 'shortlisted', label: 'Shortlisted', icon: CheckSquare },
+    // { id: 'email', label: 'Email Notifications', icon: Mail },
     ...(userRole === 'admin' ? [
-      { id: 'admin', label: 'Batch student import', icon: LayoutDashboard },
+      { id: 'admin', label: 'Student Import', icon: LayoutDashboard },
+      { id: 'company-import', label: 'Company Import', icon: Building2 },
+      { id: 'cia-import', label: 'CIA Marks Import', icon: FileText },
+      { id: 'mock-import', label: 'Mock Tests Import', icon: ClipboardList },
       { id: 'user-approval', label: 'User Approval', icon: UserCheck }
     ] : []),
   ];

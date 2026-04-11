@@ -4,13 +4,16 @@ const {
     getCompanies, 
     getTrackingData, 
     getNonApplicants, 
-    sendMassMail 
+    sendMassMail,
+    createCompany
 } = require('../controllers/companyController');
 
 // Define routes
 router.get('/', getCompanies);
+router.post('/', createCompany);
 router.get('/tracking', getTrackingData);
 router.get('/non-applicants', getNonApplicants);
 router.post('/send-mail', sendMassMail);
 
 module.exports = router;
+
