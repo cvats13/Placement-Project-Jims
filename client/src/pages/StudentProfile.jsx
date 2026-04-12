@@ -7,7 +7,7 @@ import { PlacementReadinessCard } from '../components/PlacementReadinessCard';
 import { SemesterAccordion } from '../components/SemesterAccordion';
 import { PerformanceCharts } from '../components/PerformanceCharts';
 
-export function StudentProfile({ student, onBack }) {
+export function StudentProfile({ student, onBack, onNotify, onSendToCompany }) {
   const [profileData, setProfileData] = useState(null);
   const [academicData, setAcademicData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,11 +86,29 @@ export function StudentProfile({ student, onBack }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between gap-4">
         <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to List
         </Button>
+
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={onNotify}
+            className="gap-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+          >
+            <Mail className="w-4 h-4" />
+            Notify Student
+          </Button>
+          <Button 
+            onClick={onSendToCompany}
+            className="gap-2 bg-indigo-600 hover:bg-indigo-700"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Send to Company
+          </Button>
+        </div>
       </div>
 
       {/* Main Profile & Personal Section */}

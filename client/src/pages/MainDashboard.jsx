@@ -65,8 +65,9 @@ export function MainDashboard() {
     fetchStudents();
   }, [fetchStudents]);
 
-  // Reset selected student when navigating between sidebar views
+  // Reset selected students when navigating between sidebar views
   useEffect(() => {
+    setSelectedStudents([]);
     setSelectedStudent(null);
   }, [location.pathname]);
 
@@ -144,6 +145,14 @@ export function MainDashboard() {
             <StudentProfile 
               student={selectedStudent}
               onBack={handleBackToList}
+              onNotify={() => {
+                setSelectedStudents([selectedStudent.student_id]);
+                setIsNotifyModalOpen(true);
+              }}
+              onSendToCompany={() => {
+                setSelectedStudents([selectedStudent.student_id]);
+                setIsEmailModalOpen(true);
+              }}
             />
           ) : activeView === 'admin' ? (
             <AdminUploadPanel />
@@ -240,7 +249,6 @@ export function MainDashboard() {
         </main>
       </div>
 
-{/* 
       <SelectionActionBar
         selectedCount={selectedStudents.length}
         onSendToCompany={() => setIsEmailModalOpen(true)}
@@ -257,8 +265,7 @@ export function MainDashboard() {
         isOpen={isNotifyModalOpen}
         onClose={() => setIsNotifyModalOpen(false)}
         selectedStudents={students.filter(s => selectedStudents.includes(s.student_id))}
-      /> 
-      */}
+      />
 
       <BulkPasteModal
         isOpen={isBulkPasteModalOpen}
