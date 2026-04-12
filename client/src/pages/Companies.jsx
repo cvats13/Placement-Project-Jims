@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
-import { Building2, Mail, BarChart3, Users, Search, Filter, MailCheck } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { CompanyList } from '../components/companies/CompanyList';
-import { TrackingDashboard } from '../components/companies/TrackingDashboard';
-import { NonApplicants } from '../components/companies/NonApplicants';
+// import { TrackingDashboard } from '../components/companies/TrackingDashboard';
+// import { NonApplicants } from '../components/companies/NonApplicants';
 import useCompanyStore from '../store/useCompanyStore';
 
 export function Companies() {
   const [activeTab, setActiveTab] = useState('list');
-  const { fetchCompanies, fetchTrackingData, fetchNonApplicants } = useCompanyStore();
+  const { fetchCompanies } = useCompanyStore();
 
   useEffect(() => {
     fetchCompanies();
-    fetchTrackingData();
-    fetchNonApplicants();
-  }, [fetchCompanies, fetchTrackingData, fetchNonApplicants]);
+    // fetchTrackingData();
+    // fetchNonApplicants();
+  }, [fetchCompanies]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Companies Management</h2>
-        <p className="text-sm text-gray-500">Track corporate relations, student applications, and participation.</p>
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900">Companies</h2>
+        {/* <p className="text-sm text-gray-500">Track corporate relations, student applications, and participation.</p> */}
       </div>
 
       <Tabs defaultValue="list" className="w-full space-y-6" onValueChange={setActiveTab}>
@@ -30,14 +30,14 @@ export function Companies() {
               <Building2 className="w-4 h-4" />
               Company List
             </TabsTrigger>
-            <TabsTrigger value="tracking" className="flex items-center gap-2 rounded-lg py-2.5">
+            {/* <TabsTrigger value="tracking" className="flex items-center gap-2 rounded-lg py-2.5">
               <BarChart3 className="w-4 h-4" />
               Tracking
             </TabsTrigger>
             <TabsTrigger value="non-applicants" className="flex items-center gap-2 rounded-lg py-2.5">
               <Users className="w-4 h-4" />
               Non-Applicants
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           {activeTab === 'list' && (
@@ -51,13 +51,13 @@ export function Companies() {
           <CompanyList />
         </TabsContent>
 
-        <TabsContent value="tracking" className="space-y-6 outline-none">
+        {/* <TabsContent value="tracking" className="space-y-6 outline-none">
           <TrackingDashboard />
         </TabsContent>
 
         <TabsContent value="non-applicants" className="space-y-6 outline-none">
           <NonApplicants />
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );

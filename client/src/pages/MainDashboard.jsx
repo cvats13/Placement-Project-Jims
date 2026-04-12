@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from '../components/ui/sonner';
 import { Sidebar } from '../components/Sidebar';
@@ -15,6 +15,7 @@ import { BulkPasteModal } from '../components/BulkPasteModal';
 import { BulkSearchIndicator } from '../components/BulkSearchIndicator';
 import { FilterResultIndicator } from '../components/ui/FilterResultIndicator';
 import { EmptySearchState } from '../components/ui/EmptySearchState';
+import { DashboardOverviewCharts } from '../components/DashboardOverviewCharts';
 import { Companies } from '../pages/Companies';
 import { CompanyImportPanel } from '../pages/CompanyImportPanel';
 import { CiaMarksImportPanel } from '../pages/CiaMarksImportPanel';
@@ -45,7 +46,7 @@ export function MainDashboard() {
   } = useStudentStore();
 
   const path = location.pathname.replace(/^\/+/, '');
-  const activeView = path || (userRole === 'admin' ? 'admin' : 'students');
+  const activeView = path || (userRole === 'user' ? 'pending' : 'dashboard');
 
   useEffect(() => {
     if (location.pathname === '/') {
@@ -54,7 +55,7 @@ export function MainDashboard() {
         logout(); // Force logout to clear invalid session and gracefully break infinite redirects
       } else {
         // Redirect to appropriate starting view
-        const targetView = userRole === 'user' ? '/pending' : '/students';
+        const targetView = userRole === 'user' ? '/pending' : '/dashboard';
         navigate(targetView, { replace: true });
       }
     }
@@ -146,6 +147,34 @@ export function MainDashboard() {
             />
           ) : activeView === 'admin' ? (
             <AdminUploadPanel />
+          ) : activeView === 'dashboard' ? (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+                {/* <p className="text-sm text-gray-500 mt-1">Overview of student distribution and placement trends.</p> */}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                  <p className="text-sm text-gray-500">Total Students</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{students.length}</p>
+                </div>
+                <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                  <p className="text-sm text-gray-500">Placed Students</p>
+                  <p className="text-3xl font-bold text-emerald-600 mt-1">
+                    {students.filter(s => (s.placement_status || '').toLowerCase() === 'placed').length}
+                  </p>
+                </div>
+                <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                  <p className="text-sm text-gray-500">In Process</p>
+                  <p className="text-3xl font-bold text-indigo-600 mt-1">
+                    {students.filter(s => (s.placement_status || 'in-process').toLowerCase() !== 'placed').length}
+                  </p>
+                </div>
+              </div>
+
+              <DashboardOverviewCharts students={students} />
+            </div>
           ) : activeView === 'students' ? (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
