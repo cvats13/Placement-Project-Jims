@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Mail, Search, Filter, MoreHorizontal, Download, ChevronDown } from 'lucide-react';
+import { Search, Filter, MoreHorizontal } from 'lucide-react';
 import { 
   Table, 
   TableBody, 
@@ -116,13 +116,13 @@ export function CompanyList() {
           </div>
 
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <Button 
+            {/* <Button 
                variant="outline" 
                className="bg-white border-none shadow-sm h-11 px-5 rounded-xl text-gray-600 gap-2 hover:bg-gray-50 flex-1 md:flex-none"
             >
               <Download className="w-4 h-4" />
               Export
-            </Button>
+            </Button> */}
             {/* <Button 
                onClick={() => setIsMailModalOpen(true)}
                disabled={selectedCompanies.length === 0}
@@ -190,14 +190,17 @@ export function CompanyList() {
                   </TableCell>
                   <TableCell className="font-bold text-gray-900 py-4">{company.name}</TableCell>
                   <TableCell className="py-4 font-medium text-gray-600">{company.course}</TableCell>
-                  <TableCell className="py-4 font-medium text-gray-600">{company.role}</TableCell>
-                  <TableCell className="py-4 font-bold text-indigo-600">{company.package} LPA</TableCell>
+                  <TableCell className="py-4 font-medium text-gray-600">{company.job_role ?? company.role ?? 'N/A'}</TableCell>
+                  <TableCell className="py-4 font-bold text-indigo-600">
+                    {company.package_lpa ?? company.package ?? 'N/A'}
+                    {(company.package_lpa ?? company.package) ? ' LPA' : ''}
+                  </TableCell>
                   <TableCell className="py-4">
                     <Badge variant="outline" className={`rounded-full px-3 py-0.5 border-2 text-[11px] font-bold ${getStatusColor(company.status)}`}>
                       {company.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4 text-gray-500 font-medium truncate max-w-[150px]">{company.email}</TableCell>
+                  <TableCell className="py-4 text-gray-500 font-medium truncate max-w-[150px]">{company.official_email ?? company.email ?? 'N/A'}</TableCell>
                   <TableCell className="text-right pr-6 py-4">
                     <Button variant="ghost" size="icon" className="text-gray-400 group-hover:text-indigo-600 group-hover:bg-indigo-100/50 rounded-lg transition-all">
                       <MoreHorizontal className="w-4 h-4" />
@@ -214,7 +217,10 @@ export function CompanyList() {
         isOpen={isMailModalOpen} 
         onClose={() => setIsMailModalOpen(false)}
         selectedCount={selectedCompanies.length}
-        recipientEmails={companies.filter(c => selectedCompanies.includes(c.id)).map(c => c.email)}
+        recipientEmails={companies
+          .filter(c => selectedCompanies.includes(c.id))
+          .map(c => c.official_email ?? c.email)
+          .filter(Boolean)}
       />
     </div>
   );
