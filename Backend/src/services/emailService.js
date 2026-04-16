@@ -7,15 +7,16 @@ const https = require('https');
  * @param {string} options.toName - Recipient name
  * @param {string} options.subject - Email subject
  * @param {string} options.htmlContent - Email body in HTML
+ * @param {Array} options.attachment - Optional array of attachment objects [{content: base64, name: string}]
  */
-exports.sendBrevoEmail = async ({ to, toName, subject, htmlContent, textContent }) => {
+exports.sendBrevoEmail = async ({ to, toName, subject, htmlContent, textContent, attachment }) => {
     const apiKey = process.env.BREVO_API_KEY;
     
     if (!apiKey) {
         throw new Error('BREVO_API_KEY is not configured in .env');
     }
 
-    const data = JSON.stringify({
+    const payload = {
         sender: { 
             name: "JIMS Placement Portal", 
             email: "hardikdhawan9311@gmail.com" 
@@ -27,7 +28,13 @@ exports.sendBrevoEmail = async ({ to, toName, subject, htmlContent, textContent 
         subject: subject,
         htmlContent: htmlContent,
         textContent: textContent || ''
-    });
+    };
+
+    if (attachment && Array.isArray(attachment)) {
+        payload.attachment = attachment;
+    }
+
+    const data = JSON.stringify(payload);
 
     const options = {
         hostname: 'api.brevo.com',

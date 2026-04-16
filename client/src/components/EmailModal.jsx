@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import { Switch } from '../components/ui/switch';
 import { toast } from 'sonner';
 import axiosInstance from '../api/axiosInstance';
 
@@ -15,42 +16,53 @@ export function EmailModal({ isOpen, onClose, selectedStudents = [] }) {
     subject: '',
     message: '',
   });
+  const [sendAsExcel, setSendAsExcel] = useState(false);
 
   const selectedCount = selectedStudents.length;
 
-  // Generate preview when modal opens
+  // Generate preview when modal opens or sendAsExcel changes
   useEffect(() => {
     if (isOpen && selectedStudents.length > 0) {
-      const studentDetails = selectedStudents.map((s, index) => (
-        `${index + 1}. ${s.name}\n   Enrollment: ${s.enrollment_no}\n   Email: ${s.student_email || s.primary_email}\n   Course: ${s.course}\n   CGPA (Cumulative Grade Point Average): ${s.current_cgpa || 'N/A'}\n`
-      )).join('\n');
+      let message = '';
+
+      if (sendAsExcel) {
+        message = `Dear Hiring Manager,\n\nPlease find the detailed profiles of the ${selectedCount} selected students attached in the Excel file for your consideration.\n\nBest regards,\nPlacement Officer\nJIMS`;
+      } else {
+        const studentDetails = selectedStudents.map((s, index) => (
+          `${index + 1}. ${s.name}\n   Enrollment: ${s.enrollment_no}\n   Email: ${s.student_email || s.primary_email}\n   Course: ${s.course}\n   CGPA (Cumulative Grade Point Average): ${s.current_cgpa || 'N/A'}\n`
+        )).join('\n');
+
+        message = `Dear Hiring Manager,\n\nWe are pleased to share the profiles of our talented students for your consideration:\n\n${studentDetails}\n\nPlease find the detailed resumes attached (if applicable) or contact us for more information.\n\nBest regards,\nPlacement Officer\nJIMS`;
+      }
 
       setFormData(prev => ({
         ...prev,
         subject: `Student Profiles for Placement - ${selectedCount} Students`,
-        message: `Dear Hiring Manager,\n\nWe are pleased to share the profiles of our talented students for your consideration:\n\n${studentDetails}\n\nPlease find the detailed resumes attached (if applicable) or contact us for more information.\n\nBest regards,\nPlacement Officer\nJIMS`
+        message: message
       }));
     }
-  }, [isOpen, selectedStudents, selectedCount]);
+  }, [isOpen, selectedStudents, selectedCount, sendAsExcel]);
 
   const handleSend = async () => {
     if (!formData.companyEmail || !formData.subject || !formData.message) {
       toast.error('Please fill in all required fields');
       return;
     }
-    
+
     setIsSending(true);
     try {
       await axiosInstance.post('/students/send-to-company', {
         companyEmail: formData.companyEmail,
         subject: formData.subject,
-        message: formData.message
+        message: formData.message,
+        sendAsExcel: sendAsExcel,
+        students: selectedStudents
       });
 
       toast.success(`Email sent successfully to ${formData.companyEmail}!`, {
         description: `${selectedCount} student profiles have been shared.`,
       });
-      
+
       setFormData({
         companyName: '',
         companyEmail: '',
@@ -112,10 +124,26 @@ export function EmailModal({ isOpen, onClose, selectedStudents = [] }) {
             />
           </div>
 
+          <div className="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="sendExcel" className="text-indigo-900 font-semibold cursor-pointer">
+                Send as Excel
+              </Label>
+              {/* <p className="text-xs text-indigo-600">
+                Generate and attach an Excel file with detailed student profiles
+              </p> */}
+            </div>
+            <Switch
+              id="sendExcel"
+              checked={sendAsExcel}
+              onCheckedChange={setSendAsExcel}
+            />
+          </div>
+
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <Label htmlFor="message">Email Content (Preview & Edit) <span className="text-red-500">*</span></Label>
-              <span className="text-xs text-indigo-600 font-medium italic">You can edit the details below</span>
+              <Label htmlFor="message">Email Content  <span className="text-red-500">*</span></Label>
+              {/* <span className="text-xs text-indigo-600 font-medium italic">You can edit the details below</span> */}
             </div>
             <Textarea
               id="message"
@@ -133,8 +161,8 @@ export function EmailModal({ isOpen, onClose, selectedStudents = [] }) {
           <Button variant="outline" onClick={onClose} disabled={isSending}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSend} 
+          <Button
+            onClick={handleSend}
             className="bg-indigo-600 hover:bg-indigo-700 min-w-[120px]"
             disabled={isSending}
           >
