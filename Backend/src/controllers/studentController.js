@@ -6,6 +6,7 @@ const {
     placementFromSpreadsheet,
 } = require('../utils/placementNormalize');
 const { normalizeGapsForProfile } = require('../utils/gapNormalize');
+const XLSX = require('xlsx');
 
 // @desc Get all students (with summary info for main list)
 // @route GET /api/students
@@ -306,27 +307,61 @@ exports.bulkUploadStudents = async (req, res) => {
 // @route POST /api/students/send-to-company
 exports.sendStudentsToCompany = async (req, res) => {
     try {
-        const { companyEmail, subject, message } = req.body;
+        const { companyEmail, subject, message, sendAsExcel, students } = req.body;
 
-        console.log('📧 Email request received:', { companyEmail, subject });
-        console.log('📧 API Key available:', !!process.env.BREVO_API_KEY);
-        console.log('📧 API Key prefix:', process.env.BREVO_API_KEY?.substring(0, 15));
+        console.log('📧 Email request received:', { companyEmail, subject, sendAsExcel, studentCount: students?.length });
 
         if (!companyEmail || !subject || !message) {
             return res.status(400).json({ error: 'Missing required fields: companyEmail, subject, or message' });
         }
 
-        // Plain text version prevents Gmail's Promotions classification
+        let attachment = null;
+
+        if (sendAsExcel && students && Array.isArray(students) && students.length > 0) {
+            console.log('📊 Generating Excel attachment for', students.length, 'students');
+            
+            // Map student data for Excel
+            const excelData = students.map(s => ({
+                'Name': s.name,
+                'Enrollment No': s.enrollment_no,
+                'Course': s.course,
+                'Email': s.student_email || s.primary_email,
+                'Phone': s.phone || 'N/A',
+                'CGPA': s.current_cgpa || 'N/A',
+                '10th %': s.percentage_10th || 'N/A',
+                '12th %': s.percentage_12th || 'N/A',
+                'Grad %': s.percentage_grad || 'N/A',
+                'Skills': s.skills || 'N/A',
+                'LinkedIn': s.linkedin || 'N/A',
+                'GitHub': s.github || 'N/A'
+            }));
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            XLSX.utils.book_append_sheet(wb, ws, "Students");
+            
+            // Generate buffer
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const base64Content = buffer.toString('base64');
+            
+            attachment = [{
+                content: base64Content,
+                name: `Student_Details_${new Date().toISOString().split('T')[0]}.xlsx`
+            }];
+        }
+
+        // Plain text version
         const textContent = message;
 
-        // Minimal HTML - no colors, no tables, no marketing feel
+        // Minimal HTML
         const htmlContent = `<html><body style="font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#000;">${message.replace(/\n/g, '<br>')}</body></html>`;
 
         const result = await emailService.sendBrevoEmail({
             to: companyEmail,
             subject: subject,
             htmlContent: htmlContent,
-            textContent: textContent
+            textContent: textContent,
+            attachment: attachment
         });
 
         console.log('✅ Email sent successfully! Brevo response:', result);
