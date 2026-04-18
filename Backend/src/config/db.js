@@ -1,14 +1,28 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
+// Determine connection configuration
+const connectionConfig = process.env.DATABASE_URL 
+    ? { uri: process.env.DATABASE_URL }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        port: process.env.DB_PORT || 3306,
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'placement',
+    };
+
+// Create the connection pool with optimized production settings
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'placement',
+    ...connectionConfig,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
+    idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
+    queueLimit: 0,
+    connectTimeout: 10000, // 10 seconds timeout for initial connection
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
 });
 
 const promisePool = pool.promise();
@@ -233,15 +247,26 @@ const initializeDatabase = async () => {
     }
 };
 
-// Test the connection
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error("❌ Connection Failed: SQL Service might be down.", err.message);
-    } else {
-        console.log("✅ Database connection established.");
+// Test the connection on startup
+(async () => {
+    try {
+        const connection = await promisePool.getConnection();
+        console.log("✅ Database connection established successfully.");
         connection.release();
+    } catch (err) {
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.error('❌ Database connection was closed.');
+        } else if (err.code === 'ER_CON_COUNT_ERROR') {
+            console.error('❌ Database has too many connections.');
+        } else if (err.code === 'ECONNREFUSED') {
+            console.error('❌ Database connection was refused. Check if MySQL is running.');
+        } else if (err.code === 'ETIMEDOUT') {
+            console.error('❌ Database connection timed out. Check your network or firewall.');
+        } else {
+            console.error("❌ Connection Failed:", err.message);
+        }
     }
-});
+})();
 
 // Attach initializeDatabase to the pool so it can be awaited in server.js
 promisePool.initializeDatabase = initializeDatabase;
