@@ -18,7 +18,7 @@ import { EmptySearchState } from '../components/ui/EmptySearchState';
 import { DashboardOverviewCharts } from '../components/DashboardOverviewCharts';
 import { Companies } from '../pages/Companies';
 import { CompanyImportPanel } from '../pages/CompanyImportPanel';
-import { CiaMarksImportPanel } from '../pages/CiaMarksImportPanel';
+import { CieMarksImportPanel } from '../pages/CieMarksImportPanel';
 import { MockTestsImportPanel } from '../pages/MockTestsImportPanel';
 import useStudentStore from '../store/useStudentStore';
 import useAuthStore from '../store/useAuthStore';
@@ -37,6 +37,7 @@ export function MainDashboard() {
     filteredStudents,
     filters,
     searchTokens,
+    allSkills,
     isLoading,
     error,
     fetchStudents,
@@ -207,6 +208,7 @@ export function MainDashboard() {
                 searchTokens={searchTokens}
                 onSearchTokensChange={setSearchTokens}
                 onBulkPasteClick={() => setIsBulkPasteModalOpen(true)}
+                allSkills={allSkills}
               />
               
               <FilterResultIndicator
@@ -234,8 +236,8 @@ export function MainDashboard() {
             <Companies />
           ) : activeView === 'company-import' ? (
             <CompanyImportPanel />
-          ) : activeView === 'cia-import' ? (
-            <CiaMarksImportPanel />
+          ) : activeView === 'cie-import' ? (
+            <CieMarksImportPanel />
           ) : activeView === 'mock-import' ? (
             <MockTestsImportPanel />
           ) : (

@@ -5,9 +5,9 @@ import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Upload, CheckCircle, XCircle, AlertCircle, RefreshCw, ArrowRight, FileText, History } from 'lucide-react';
 import { toast } from 'sonner';
-import ciaCsvService from '../services/ciaCsvService';
+import cieCsvService from '../services/cieCsvService';
 
-export function CiaMarksImportPanel() {
+export function CieMarksImportPanel() {
   const [tab, setTab] = useState('upload');
   const [file, setFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -26,7 +26,7 @@ export function CiaMarksImportPanel() {
     if (!file) return;
     setIsProcessing(true);
     try {
-      const result = await ciaCsvService.uploadFile(file);
+      const result = await cieCsvService.uploadFile(file);
       setUploadResult(result);
       setStep('results');
       toast.success('File parsed. Review before importing.');
@@ -41,8 +41,8 @@ export function CiaMarksImportPanel() {
     if (!uploadResult?.batchId) return;
     setIsProcessing(true);
     try {
-      const result = await ciaCsvService.confirmImport(uploadResult.batchId, uploadResult.preview);
-      toast.success(`✅ Imported ${result.successCount} CIA mark entries. ${result.failCount} failed.`);
+      const result = await cieCsvService.confirmImport(uploadResult.batchId, uploadResult.preview);
+      toast.success(`✅ Imported ${result.successCount} CIE mark entries. ${result.failCount} failed.`);
       setStep('upload'); setFile(null); setUploadResult(null);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Import failed');
@@ -53,7 +53,7 @@ export function CiaMarksImportPanel() {
 
   const fetchHistory = async () => {
     setIsProcessing(true);
-    try { const data = await ciaCsvService.getImportHistory(); setImportHistory(data); }
+    try { const data = await cieCsvService.getImportHistory(); setImportHistory(data); }
     catch { toast.error('Failed to load history'); }
     finally { setIsProcessing(false); }
   };
@@ -69,8 +69,8 @@ export function CiaMarksImportPanel() {
           <FileText className="w-5 h-5 text-blue-600" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">CIA Marks Import</h2>
-          <p className="text-sm text-gray-500">Upload CIA marks linked to student semesters</p>
+          <h2 className="text-2xl font-bold text-gray-900">CIE Marks Import</h2>
+          <p className="text-sm text-gray-500">Upload CIE marks linked to student semesters</p>
         </div>
       </div>
 
@@ -88,7 +88,7 @@ export function CiaMarksImportPanel() {
       {tab === 'upload' && step === 'upload' && (
         <Card className="border-2 border-blue-100 shadow-xl">
           <CardHeader className="bg-blue-50 border-b border-blue-100">
-            <CardTitle className="text-xl text-blue-900">Upload CIA Marks CSV</CardTitle>
+            <CardTitle className="text-xl text-blue-900">Upload CIE Marks CSV</CardTitle>
             <p className="text-sm text-blue-600 font-mono mt-1">
               Required columns: Enrollment No., Semester Number, Subject, Marks
             </p>
@@ -186,7 +186,7 @@ export function CiaMarksImportPanel() {
       {/* History */}
       {tab === 'history' && (
         <Card>
-          <CardHeader className="border-b"><CardTitle className="text-lg">CIA Marks Import History</CardTitle></CardHeader>
+          <CardHeader className="border-b"><CardTitle className="text-lg">CIE Marks Import History</CardTitle></CardHeader>
           <CardContent className="p-0">
             <Table>
               <TableHeader className="bg-gray-50"><TableRow><TableHead>File Name</TableHead><TableHead className="text-center">Total</TableHead><TableHead className="text-center">Success</TableHead><TableHead className="text-center">Failed</TableHead><TableHead>Status</TableHead><TableHead>Date</TableHead></TableRow></TableHeader>

@@ -11,7 +11,9 @@ const useStudentStore = create((set, get) => ({
     minGrad: 0,
     minCGPA: 0,
     company: 'all',
+    skills: '',
   },
+  allSkills: [],
   searchTokens: [],
   isLoading: false,
   error: null,
@@ -48,7 +50,23 @@ const useStudentStore = create((set, get) => ({
           current_cgpa: Number(s.current_cgpa || 0)
         };
       });
-      set({ students: formattedData, filteredStudents: formattedData, isLoading: false });
+      // Extract unique skills
+      const skillSet = new Set();
+      formattedData.forEach(s => {
+        if (Array.isArray(s.skills)) {
+          s.skills.forEach(skill => {
+            if (skill) skillSet.add(skill.trim());
+          });
+        }
+      });
+      const allSkills = Array.from(skillSet).sort();
+
+      set({ 
+        students: formattedData, 
+        filteredStudents: formattedData, 
+        allSkills,
+        isLoading: false 
+      });
     } catch (error) {
       const message = error.response?.data?.error || 'Failed to fetch students';
       set({ error: message, isLoading: false });
@@ -82,6 +100,7 @@ const useStudentStore = create((set, get) => ({
       minGrad: 0,
       minCGPA: 0,
       company: 'all',
+      skills: '',
     };
     set({ 
       filters: initialFilters, 
@@ -114,6 +133,16 @@ const useStudentStore = create((set, get) => ({
     
     if (filters.company !== 'all') {
       filtered = filtered.filter(s => s.placed_company === filters.company);
+    }
+    
+    if (filters.skills && filters.skills.trim() !== '') {
+      const searchSkills = filters.skills.toLowerCase().split(',').map(s => s.trim()).filter(s => s !== '');
+      filtered = filtered.filter(s => {
+        const studentSkills = s.skills.map(skill => skill.toLowerCase());
+        return searchSkills.every(searchSkill => 
+          studentSkills.some(studentSkill => studentSkill.includes(searchSkill))
+        );
+      });
     }
 
     if (searchTokens.length > 0) {

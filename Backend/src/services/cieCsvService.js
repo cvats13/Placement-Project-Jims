@@ -2,11 +2,11 @@ const xlsx = require('xlsx');
 const db = require('../config/db');
 
 /**
- * Service to handle CIA Marks CSV import.
+ * Service to handle CIE Marks CSV import.
  * CSV Format: Enrollment No., Semester Number, Subject, Marks
- * Flow: enrollment_no → student_id → academic_semesters.id → cia_marks insert
+ * Flow: enrollment_no → student_id → academic_semesters.id → cie_marks insert
  */
-class CiaCsvService {
+class CieCsvService {
     async processUpload(fileBuffer, fileName, userId) {
         const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -25,7 +25,7 @@ class CiaCsvService {
 
         const [logResult] = await db.query(
             'INSERT INTO import_logs (file_name, uploaded_by, total_rows, status, module_type) VALUES (?, ?, ?, ?, ?)',
-            [fileName, safeUserId, rows.length, 'pending', 'cia_marks']
+            [fileName, safeUserId, rows.length, 'pending', 'cie_marks']
         );
         const batchId = logResult.insertId;
 
@@ -85,7 +85,7 @@ class CiaCsvService {
             const row = item.data;
             try {
                 await db.query(`
-                    INSERT INTO cia_marks (semester_id, subject, marks)
+                    INSERT INTO cie_marks (semester_id, subject, marks)
                     VALUES (?, ?, ?)
                     ON DUPLICATE KEY UPDATE marks = VALUES(marks)
                 `, [item.semester_id, row['Subject'], parseFloat(row['Marks'])]);
@@ -106,10 +106,10 @@ class CiaCsvService {
 
     async getHistory() {
         const [rows] = await db.query(
-            'SELECT * FROM import_logs WHERE module_type = "cia_marks" ORDER BY created_at DESC LIMIT 50'
+            'SELECT * FROM import_logs WHERE module_type = "cie_marks" ORDER BY created_at DESC LIMIT 50'
         );
         return rows;
     }
 }
 
-module.exports = new CiaCsvService();
+module.exports = new CieCsvService();

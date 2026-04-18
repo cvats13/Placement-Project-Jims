@@ -11,7 +11,7 @@ export function SignUp() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user'
+    role: 'placement_officer'
   });
 
   const handleChange = (e) => {
@@ -102,7 +102,6 @@ export function SignUp() {
                   onChange={handleRoleChange}
                   className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer"
                 >
-                  <option value="user">Student</option>
                   <option value="placement_officer">Placement Officer</option>
                   <option value="admin">Admin</option>
                 </select>

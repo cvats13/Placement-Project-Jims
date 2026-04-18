@@ -12,7 +12,7 @@ export function Sidebar({ activeView, onNavigate, onLogout, userRole }) {
     ...(userRole === 'admin' ? [
       { id: 'admin', label: 'Student Import', icon: LayoutDashboard },
       { id: 'company-import', label: 'Company Import', icon: Building2 },
-      { id: 'cia-import', label: 'CIA Marks Import', icon: FileText },
+      { id: 'cie-import', label: 'CIE Marks Import', icon: FileText },
       { id: 'mock-import', label: 'Mock Tests Import', icon: ClipboardList },
       { id: 'user-approval', label: 'User Approval', icon: UserCheck }
     ] : []),

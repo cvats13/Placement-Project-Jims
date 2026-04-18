@@ -24,20 +24,20 @@ export function StudentProfile({ student, onBack, onNotify, onSendToCompany }) {
 
         setProfileData(data.details);
 
-        // Map academic history (CIA / mock rows match CSV import: subject + marks, test_name + marks)
+        // Map academic history (CIE / mock rows match CSV import: subject + marks, test_name + marks)
         const formattedHistory = data.academicHistory.map(sem => ({
           semesterNumber: sem.semester_number,
           sgpa: parseFloat(sem.sgpa || 0),
-          ciaMarks: (sem.ciaMarks || []).map(cia => ({
-            subject: cia.subject,
-            marks: parseFloat(cia.marks ?? 0),
+          cieMarks: (sem.cieMarks || []).map(cie => ({
+            subject: cie.subject,
+            marks: parseFloat(cie.marks ?? 0),
           })),
           mockTests: (sem.mockTests || []).map(test => ({
             testName: test.test_name,
             score: parseFloat(test.marks ?? 0),
           })),
-          avgCIA: sem.ciaMarks?.length > 0
-            ? sem.ciaMarks.reduce((sum, c) => sum + parseFloat(c.marks ?? 0), 0) / sem.ciaMarks.length
+          avgCIE: sem.cieMarks?.length > 0
+            ? sem.cieMarks.reduce((sum, c) => sum + parseFloat(c.marks ?? 0), 0) / sem.cieMarks.length
             : 0,
           avgMockTest: sem.mockTests?.length > 0
             ? sem.mockTests.reduce((sum, t) => sum + parseFloat(t.marks ?? 0), 0) / sem.mockTests.length

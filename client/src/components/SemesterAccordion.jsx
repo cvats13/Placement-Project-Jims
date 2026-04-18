@@ -1,7 +1,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { Card } from './ui/card';
 
-import { CIAMarksTable } from './CIAMarksTable';
+import { CIEMarksTable } from './CIEMarksTable';
 import { MockTestTable } from './MockTestTable';
 import { BookOpen, TrendingUp, Target } from 'lucide-react';
 
@@ -43,7 +43,7 @@ export function SemesterAccordion({ semesters }) {
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <BookOpen className="w-3.5 h-3.5" />
-                      Avg CIE: <span className="font-medium text-gray-700">{semester.avgCIA.toFixed(1)}</span>
+                      Avg CIE: <span className="font-medium text-gray-700">{semester.avgCIE.toFixed(1)}</span>
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
@@ -78,7 +78,7 @@ export function SemesterAccordion({ semesters }) {
                   </div>
                   <div>
                     <p className="text-xs text-blue-700 font-medium">Avg CIE Score</p>
-                    <p className="text-2xl font-bold text-blue-900">{semester.avgCIA.toFixed(1)}</p>
+                    <p className="text-2xl font-bold text-blue-900">{semester.avgCIE.toFixed(1)}</p>
                   </div>
                 </div>
               </Card>
@@ -102,7 +102,7 @@ export function SemesterAccordion({ semesters }) {
                 <BookOpen className="w-4 h-4 text-indigo-600" />
                 CIE Marks
               </h4>
-              <CIAMarksTable ciaMarks={semester.ciaMarks} />
+              <CIEMarksTable cieMarks={semester.cieMarks} />
             </div>
 
             {/* Mock Test Section */}

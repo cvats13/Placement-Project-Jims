@@ -77,10 +77,10 @@ async function seed() {
                 const [semResult] = await connection.query("INSERT INTO academic_semesters (student_id, semester_number, sgpa) VALUES (?, ?, ?)", [studentId, sem, (7.5 + Math.random() * 2).toFixed(2)]);
                 const semesterId = semResult.insertId;
 
-                // CIA Marks (NEW)
+                // CIE Marks (NEW)
                 const subjects = ['Programming', 'Data Structures', 'Database Systems', 'Management'];
                 for (const sub of subjects) {
-                    await connection.query("INSERT INTO cia_marks (semester_id, subject, marks) VALUES (?, ?, ?)", [semesterId, sub, (35 + Math.random() * 15).toFixed(2)]);
+                    await connection.query("INSERT INTO cie_marks (semester_id, subject, marks) VALUES (?, ?, ?)", [semesterId, sub, (35 + Math.random() * 15).toFixed(2)]);
                 }
 
                 // Mock Tests (NEW)

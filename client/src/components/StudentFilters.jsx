@@ -20,6 +20,7 @@ export function StudentFilters({
   searchTokens = [],
   onSearchTokensChange,
   onBulkPasteClick,
+  allSkills = [],
 }) {
   const showPasteNameSearch = typeof onSearchTokensChange === 'function';
   const [inputValue, setInputValue] = useState('');
@@ -262,6 +263,54 @@ export function StudentFilters({
             step={0.1}
             className="mt-2"
           />
+        </div>
+
+        {/* Skills Filter */}
+        <div className="space-y-2 lg:col-span-2">
+          <Label>Skills Dashboard</Label>
+          <div className="flex flex-wrap gap-2 p-2 bg-gray-50 border border-gray-200 rounded-lg min-h-[44px]">
+            {filters.skills.split(',')
+              .map(s => s.trim())
+              .filter(s => s !== '')
+              .map((skill, idx) => (
+                <SearchTokenChip 
+                  key={idx} 
+                  name={skill} 
+                  onRemove={() => {
+                    const newSkills = filters.skills.split(',')
+                      .map(s => s.trim())
+                      .filter(s => s.toLowerCase() !== skill.toLowerCase())
+                      .join(', ');
+                    onFilterChange({ ...filters, skills: newSkills });
+                  }}
+                />
+              ))}
+            
+            <Select 
+              value="" 
+              onValueChange={(value) => {
+                if (!value || value === 'all') return;
+                const currentSkills = filters.skills.split(',').map(s => s.trim().toLowerCase());
+                if (currentSkills.includes(value.toLowerCase())) return;
+                
+                const newSkills = filters.skills 
+                  ? `${filters.skills}, ${value}` 
+                  : value;
+                onFilterChange({ ...filters, skills: newSkills });
+              }}
+            >
+              <SelectTrigger className="w-[180px] h-8 border-none bg-transparent shadow-none focus:ring-0">
+                <SelectValue placeholder="+ Add Skill" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" disabled>Select to add...</SelectItem>
+                {allSkills.map(skill => (
+                  <SelectItem key={skill} value={skill}>{skill}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-[10px] text-gray-400">Add skills from the database to filter students</p>
         </div>
       </div>
 

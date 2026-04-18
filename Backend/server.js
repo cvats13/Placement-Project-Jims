@@ -18,7 +18,7 @@ const companyRoutes = require('./src/routes/companyRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const importRoutes = require('./src/routes/importRoutes');
 const companyCsvRoutes = require('./src/routes/companyCsvRoutes');
-const ciaCsvRoutes = require('./src/routes/ciaCsvRoutes');
+const cieCsvRoutes = require('./src/routes/cieCsvRoutes');
 const mockCsvRoutes = require('./src/routes/mockCsvRoutes');
 
 app.use('/api/students', studentRoutes);
@@ -27,7 +27,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/import', importRoutes);
 app.use('/api/companies-import', companyCsvRoutes);
-app.use('/api/cia-import', ciaCsvRoutes);
+app.use('/api/cie-import', cieCsvRoutes);
 app.use('/api/mock-import', mockCsvRoutes);
 
 // Basic health check

@@ -81,14 +81,14 @@ exports.getStudentAcademicHistory = async (req, res) => {
             db.query('SELECT * FROM academic_semesters WHERE student_id = ?', [studentId])
         ]);
 
-        // 3. For each semester, get nested CIA marks and Mock Tests
+        // 3. For each semester, get nested CIE marks and Mock Tests
         const academicHistory = await Promise.all(semesters.map(async (sem) => {
-            const [ciaMarks] = await db.query('SELECT * FROM cia_marks WHERE semester_id = ?', [sem.id]);
+            const [cieMarks] = await db.query('SELECT * FROM cie_marks WHERE semester_id = ?', [sem.id]);
             const [mockTests] = await db.query('SELECT * FROM mock_tests WHERE semester_id = ?', [sem.id]);
 
             return {
                 ...sem,
-                ciaMarks,
+                cieMarks,
                 mockTests
             };
         }));

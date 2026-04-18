@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
-export function CIAMarksTable({ ciaMarks }) {
-  if (ciaMarks.length === 0) {
+export function CIEMarksTable({ cieMarks }) {
+  if (cieMarks.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
         No CIE marks recorded for this semester
@@ -19,7 +19,7 @@ export function CIAMarksTable({ ciaMarks }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ciaMarks.map((mark, index) => {
+          {cieMarks.map((mark, index) => {
             const m = Number(mark.marks ?? 0);
             return (
               <TableRow key={index} className="hover:bg-indigo-50/50 transition-colors">

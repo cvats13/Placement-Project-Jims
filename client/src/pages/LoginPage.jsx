@@ -95,7 +95,6 @@ export function LoginPage() {
                   <SelectContent>
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="placement_officer">Placement Officer</SelectItem>
-                    <SelectItem value="user">Student</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -79,15 +79,15 @@ const initializeDatabase = async () => {
             )
         `);
 
-        // 5. CIA Marks (linked to academic_semesters)
+        // 5. CIE Marks (linked to academic_semesters)
         await promisePool.query(`
-            CREATE TABLE IF NOT EXISTS cia_marks (
+            CREATE TABLE IF NOT EXISTS cie_marks (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 semester_id INT NOT NULL,
                 subject VARCHAR(100) NOT NULL,
                 marks DECIMAL(5,2),
                 FOREIGN KEY (semester_id) REFERENCES academic_semesters(id) ON DELETE CASCADE,
-                UNIQUE KEY uq_cia (semester_id, subject)
+                UNIQUE KEY uq_cie (semester_id, subject)
             )
         `);
 
