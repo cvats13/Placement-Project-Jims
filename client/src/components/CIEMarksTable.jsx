@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
-export function CIEMarksTable({ cieMarks }) {
-  if (cieMarks.length === 0) {
+export function CIEMarksTable({ cieMarks = [] }) {
+  if (!cieMarks || cieMarks.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
         No CIE marks recorded for this semester

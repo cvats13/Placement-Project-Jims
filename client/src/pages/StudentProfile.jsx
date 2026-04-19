@@ -69,7 +69,7 @@ export function StudentProfile({ student, onBack, onNotify, onSendToCompany }) {
   const totalMockTests = academicData.reduce((sum, sem) => sum + (sem.mockTests?.length || 0), 0);
   const avgMockScore = totalMockTests > 0
     ? academicData.reduce((sum, sem) =>
-      sum + sem.mockTests.reduce((s, t) => s + (t.score || 0), 0), 0
+      sum + (sem.mockTests?.reduce((s, t) => s + (t.score || 0), 0) || 0), 0
     ) / totalMockTests
     : 0;
 

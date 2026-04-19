@@ -9,16 +9,18 @@ function cieMarkValue(cia) {
   return NaN;
 }
 
-export function PerformanceCharts({ semesters }) {
-  const sgpaData = semesters.map(sem => ({
+export function PerformanceCharts({ semesters = [] }) {
+  if (!semesters) return null;
+
+  const sgpaData = (semesters || []).map(sem => ({
     name: `Sem ${sem.semesterNumber}`,
     sgpa: sem.sgpa,
   }));
 
   // Aggregate by subject across semesters (mean of imported marks per subject)
   const ciaBySubject = {};
-  semesters.forEach(sem => {
-    sem.ciaMarks.forEach(cia => {
+  (semesters || []).forEach(sem => {
+    sem.ciaMarks?.forEach(cia => {
       const v = cieMarkValue(cia);
       if (!Number.isFinite(v)) return;
       if (!ciaBySubject[cia.subject]) {
@@ -36,8 +38,8 @@ export function PerformanceCharts({ semesters }) {
     .slice(0, 6);
 
   const mockTestData = [];
-  semesters.forEach(sem => {
-    sem.mockTests.forEach((test) => {
+  (semesters || []).forEach(sem => {
+    sem.mockTests?.forEach((test) => {
       const score = parseFloat(test.score ?? test.marks ?? 0);
       if (!Number.isFinite(score)) return;
       const rawName = test.testName || test.test_name || 'Test';

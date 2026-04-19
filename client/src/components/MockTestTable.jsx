@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
-export function MockTestTable({ mockTests }) {
-  if (mockTests.length === 0) {
+export function MockTestTable({ mockTests = [] }) {
+  if (!mockTests || mockTests.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
         No mock tests recorded for this semester
