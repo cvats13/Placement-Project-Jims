@@ -5,7 +5,32 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Enable CORS for the frontend
+// Middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean); // Remove null/undefined if FRONTEND_URL isn't set
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed list or is a Vercel subdomain
+    const isAllowed = allowedOrigins.includes(origin) || 
+                     origin.endsWith('.vercel.app');
+
+    if (!isAllowed) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Database connection
