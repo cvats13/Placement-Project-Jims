@@ -5,27 +5,20 @@ require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 let connectionConfig;
 
 if (process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL) {
-    const dbUrl = (process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL).trim();
+    const dbUrl = process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL;
     console.log("📝 Using Database URL connection strategy");
-    
-    try {
-        const parsed = new URL(dbUrl);
-        console.log(`📡 Connecting to host: ${parsed.hostname}, port: ${parsed.port || 3306}, database: ${parsed.pathname.replace('/', '')}`);
+    const parsed = new URL(dbUrl);
 
-        connectionConfig = {
-            host: parsed.hostname,
-            port: parsed.port || 3306,
-            user: parsed.username,
-            password: parsed.password ? decodeURIComponent(parsed.password) : '',
-            database: parsed.pathname.replace('/', ''),
-            ssl: {
-                rejectUnauthorized: false
-            }
-        };
-    } catch (urlErr) {
-        console.error("❌ ERROR: Failed to parse DATABASE_URL. Ensure it is a valid connection string.", urlErr.message);
-        process.exit(1);
-    }
+    connectionConfig = {
+        host: parsed.hostname,
+        port: parsed.port || 3306,
+        user: parsed.username,
+        password: decodeURIComponent(parsed.password),
+        database: parsed.pathname.replace('/', ''),
+        ssl: {
+            rejectUnauthorized: false
+        }
+    };
 } else {
     console.warn("⚠️ No DATABASE_URL found. Falling back to individual environment variables or defaults.");
     connectionConfig = {
@@ -35,7 +28,7 @@ if (process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL) {
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'placement'
     };
-    
+
     if (!process.env.DB_HOST && process.env.NODE_ENV === 'production') {
         console.error("❌ ERROR: Database configuration missing in production environment!");
     }

@@ -7,17 +7,7 @@ const port = process.env.PORT || 3000;
 
 // Log environment state (helpful for debugging Render)
 console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
-console.log('🔌 Database URL detected:', (process.env.DATABASE_URL || process.env.MYSQL_PUBLIC_URL) ? 'Yes' : 'No');
-
-// Global error handlers for better debugging
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('🔥 Uncaught Exception:', err);
-  process.exit(1);
-});
+console.log('🔌 Database URL detected:', (process.env.DATABASE_URL || process.env.MYSQL_PUBLIC_URL) ? 'Yes (masked)' : 'No');
 
 // Middleware
 // Middleware
@@ -74,7 +64,7 @@ app.use('/api/mock-import', mockCsvRoutes);
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  app.get(/.*/, (req, res, next) => {
+  app.get('*', (req, res, next) => {
     // If it's an API route, don't serve index.html
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
@@ -100,8 +90,5 @@ const startServer = async () => {
   }
 };
 
-startServer().catch(err => {
-  console.error('🔥 Fatal error during server startup:', err);
-  process.exit(1);
-});
+startServer();
 
