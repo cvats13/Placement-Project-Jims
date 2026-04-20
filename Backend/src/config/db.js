@@ -1,10 +1,12 @@
 const mysql = require('mysql2');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 let connectionConfig;
 
 if (process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL) {
     const dbUrl = process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL;
+    console.log("📝 Using Database URL connection strategy");
     const parsed = new URL(dbUrl);
 
     connectionConfig = {
@@ -18,6 +20,7 @@ if (process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL) {
         }
     };
 } else {
+    console.warn("⚠️ No DATABASE_URL found. Falling back to individual environment variables or defaults.");
     connectionConfig = {
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 3306,
@@ -25,6 +28,10 @@ if (process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL) {
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'placement'
     };
+    
+    if (!process.env.DB_HOST && process.env.NODE_ENV === 'production') {
+        console.error("❌ ERROR: Database configuration missing in production environment!");
+    }
 }
 
 // Create the connection pool with optimized production settings

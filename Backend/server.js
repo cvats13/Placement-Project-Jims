@@ -1,9 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Log environment state (helpful for debugging Render)
+console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
+console.log('🔌 Database URL detected:', process.env.DATABASE_URL ? 'Yes (masked)' : 'No');
 
 // Middleware
 // Middleware
