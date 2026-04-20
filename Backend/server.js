@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -54,6 +55,17 @@ app.use('/api/import', importRoutes);
 app.use('/api/companies-import', companyCsvRoutes);
 app.use('/api/cie-import', cieCsvRoutes);
 app.use('/api/mock-import', mockCsvRoutes);
+
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+  
+  app.get('*', (req, res, next) => {
+    // If it's an API route, don't serve index.html
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+  });
+}
 
 // Basic health check
 app.get('/health', (req, res) => {
