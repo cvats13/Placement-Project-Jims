@@ -17,10 +17,10 @@ app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     // Check if origin matches allowed list or is a Vercel subdomain
-    const isAllowed = allowedOrigins.includes(origin) || 
-                     origin.endsWith('.vercel.app');
+    const isAllowed = allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app');
 
     if (!isAllowed) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -59,8 +59,8 @@ app.use('/api/mock-import', mockCsvRoutes);
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
-  
-  app.get('(.*)', (req, res, next) => {
+
+  app.get('/:path*', (req, res, next) => {
     // If it's an API route, don't serve index.html
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
@@ -69,21 +69,21 @@ if (process.env.NODE_ENV === 'production') {
 
 // Basic health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Backend is running' });
+  res.json({ status: 'OK', message: 'Backend is running' });
 });
 
 const startServer = async () => {
-    try {
-        // Ensure database is ready before taking requests
-        await pool.initializeDatabase();
-        
-        app.listen(port, () => {
-            console.log(`✅ Server is running on port: ${port}`);
-        });
-    } catch (err) {
-        console.error('❌ Failed to start server due to database error:', err);
-        process.exit(1);
-    }
+  try {
+    // Ensure database is ready before taking requests
+    await pool.initializeDatabase();
+
+    app.listen(port, () => {
+      console.log(`✅ Server is running on port: ${port}`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to start server due to database error:', err);
+    process.exit(1);
+  }
 };
 
 startServer();
