@@ -7,7 +7,17 @@ const port = process.env.PORT || 3000;
 
 // Log environment state (helpful for debugging Render)
 console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
-console.log('🔌 Database URL detected:', (process.env.DATABASE_URL || process.env.MYSQL_PUBLIC_URL) ? 'Yes (masked)' : 'No');
+console.log('🔌 Database URL detected:', (process.env.DATABASE_URL || process.env.MYSQL_PUBLIC_URL) ? 'Yes' : 'No');
+
+// Global error handlers for better debugging
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🔥 Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('🔥 Uncaught Exception:', err);
+  process.exit(1);
+});
 
 // Middleware
 // Middleware
@@ -90,5 +100,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+startServer().catch(err => {
+  console.error('🔥 Fatal error during server startup:', err);
+  process.exit(1);
+});
 
