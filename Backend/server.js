@@ -74,7 +74,7 @@ app.use('/api/mock-import', mockCsvRoutes);
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
-  app.get('*', (req, res, next) => {
+  app.get('(.*)', (req, res, next) => {
     // If it's an API route, don't serve index.html
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
